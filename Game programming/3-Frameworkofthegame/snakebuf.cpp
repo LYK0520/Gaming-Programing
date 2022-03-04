@@ -3,7 +3,7 @@
 #include <conio.h>
 using namespace std;
 ////////////////////////////////////
-//????????????????????????????
+//双缓冲句柄变量以及缓冲区描述变量
 HANDLE hOutPut, hOutBuf;
 COORD coord = {0, 0};
 DWORD bytes = 0;
@@ -28,7 +28,7 @@ int nTail=1;
 void Initial()
 {
 ////////////////////////////////////
-//????????????
+//创建新的缓冲区
     hOutBuf = CreateConsoleScreenBuffer(
         GENERIC_WRITE,
         FILE_SHARE_WRITE,
@@ -43,7 +43,7 @@ void Initial()
         NULL);
 ///////////////////////////////////
 ///////////////////////////////////
-//???????????????г?????????????????????????
+//对两个缓冲区进行初始化，隐藏两个缓冲区里的光标
 
     CONSOLE_CURSOR_INFO cci;
     cci.bVisible = 0;
@@ -60,7 +60,7 @@ void Initial()
     score = 0;
 }
 
-void Draw() //????
+void Draw() //绘制
 {
     system("cls");
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -127,7 +127,7 @@ void Draw() //????
     }
     cout << endl;
 }
-void Draw2() //????
+void Draw2() //绘制
 {
     int i, j;
     int currentLine = 0;
@@ -180,10 +180,10 @@ void Draw2() //????
         ScreenData[currentLine + i][j] = '#';
     }
     currentLine++;
-    sprintf(ScreenData[currentLine + i], "????÷??%d", score);
+    sprintf(ScreenData[currentLine + i], "游戏得分：%d", score);
     
 }
-void Show_DoubleBuffer()//????
+void Show_DoubleBuffer()//缓冲
 {
     HANDLE hBuf;
     WORD textColor;
@@ -222,7 +222,7 @@ void Show_DoubleBuffer()//????
     }
     SetConsoleActiveScreenBuffer(hBuf);
 /////////////////////////////////////////////////////////////////////////////////////
-//???????????
+//单色显示双缓冲
     // if(BufferSwapFlag==false)
     // {
     //     BufferSwapFlag=true;
@@ -242,7 +242,7 @@ void Show_DoubleBuffer()//????
     //     SetConsoleActiveScreenBuffer(hOutPut);
     // }
 }
-void Input() //????
+void Input() //输入
 {
     if (_kbhit())
     {
@@ -269,7 +269,7 @@ void Input() //????
         }
     }
 }
-void Logic() //???
+void Logic() //逻辑
 {
 
     switch (dir)
@@ -297,12 +297,12 @@ void Logic() //???
         score += 10;
     }
 
-    //?ж???磬???????
+    //判断出界，游戏结束
      if(x>width-2||x<=0||y>height-1||y<0)
     {
         gameOver=true;
     }
-    //?ж????????????????????
+    //判断身体与头相撞，游戏结束
     for(int i=1;i<nTail;i++)
     {
         if(tailX[i]==x&&tailY[i]==y)
