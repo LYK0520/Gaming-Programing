@@ -3,7 +3,7 @@
 #include <conio.h>
 using namespace std;
 ////////////////////////////////////
-//åŒç¼“å†²å¥æŸ„å˜é‡ä»¥åŠç¼“å†²åŒºæè¿°å˜é‡
+//Ë«»º³å¾ä±ú±äÁ¿ÒÔ¼°»º³åÇøÃèÊö±äÁ¿
 HANDLE hOutPut, hOutBuf;
 COORD coord = {0, 0};
 DWORD bytes = 0;
@@ -37,7 +37,7 @@ int nTail=1;
 void Initial()
 {
 ////////////////////////////////////
-//åˆ›å»ºæ–°çš„ç¼“å†²åŒº
+//´´½¨ĞÂµÄ»º³åÇø
     hOutBuf = CreateConsoleScreenBuffer(
         GENERIC_WRITE,
         FILE_SHARE_WRITE,
@@ -52,7 +52,7 @@ void Initial()
         NULL);
 ///////////////////////////////////
 ///////////////////////////////////
-//å¯¹ä¸¤ä¸ªç¼“å†²åŒºè¿›è¡Œåˆå§‹åŒ–ï¼Œéšè—ä¸¤ä¸ªç¼“å†²åŒºé‡Œçš„å…‰æ ‡
+//¶ÔÁ½¸ö»º³åÇø½øĞĞ³õÊ¼»¯£¬Òş²ØÁ½¸ö»º³åÇøÀïµÄ¹â±ê
 
     CONSOLE_CURSOR_INFO cci;
     cci.bVisible = 0;
@@ -69,7 +69,7 @@ void Initial()
     score = 0;
 }
 
-void Draw() //ç»˜åˆ¶
+void Draw() //»æÖÆ
 {
     system("cls");
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -136,7 +136,7 @@ void Draw() //ç»˜åˆ¶
     }
     cout << endl;
 }
-void Draw2() //ç»˜åˆ¶
+void Draw2() //»æÖÆ
 {
     int i, j;
     int currentLine = 0;
@@ -189,7 +189,7 @@ void Draw2() //ç»˜åˆ¶
         ScreenData[currentLine + i][j] = '#';
     }
     currentLine++;
-    sprintf(ScreenData[currentLine + i], "æ¸¸æˆå¾—åˆ†ï¼š%d", score);
+    sprintf(ScreenData[currentLine + i], "ÓÎÏ·µÃ·Ö£º%d", score);
     
 }
 //////////////////////////////////////
@@ -221,11 +221,14 @@ void DrawMap()
         {
             if(j==0)
             {
+                SetConsoleTextAttribute(h,textColor);
                 cout<<"#";
             }else if(j==width+1)
             {
+                SetConsoleTextAttribute(h,textColor);
                 cout<<"#";
             }else{
+                SetConsoleTextAttribute(h,0x04);
                 cout<<" ";
             }
         }
@@ -234,10 +237,11 @@ void DrawMap()
     setPos(-1,height);
     for(int i=0;i<width+2;i++)
     {
+        SetConsoleTextAttribute(h,textColor);
         cout<<"#";
     }
     cout<<endl;
-    cout<<"æ¸¸æˆå¾—åˆ†ï¼š"<<score<<endl;
+    cout<<"ÓÎÏ·µÃ·Ö£º"<<score<<endl;
 }
 void eraseSnake()
 {
@@ -271,14 +275,15 @@ void DrawLocally()
             cout<<"O";
         }else{
             SetConsoleTextAttribute(h,0x0a);
+            cout<<"o";
         }
     }
     setPos(0,height+1);
     SetConsoleTextAttribute(h,0x06);
-    cout<<"æ¸¸æˆå¾—åˆ†"<<score;
+    cout<<"ÓÎÏ·µÃ·Ö"<<score;
 }
 //////////////////////////////////////////
-void Show_DoubleBuffer()//ç¼“å†²
+void Show_DoubleBuffer()//»º³å
 {
     HANDLE hBuf;
     WORD textColor;
@@ -317,7 +322,7 @@ void Show_DoubleBuffer()//ç¼“å†²
     }
     SetConsoleActiveScreenBuffer(hBuf);
 /////////////////////////////////////////////////////////////////////////////////////
-//å•è‰²æ˜¾ç¤ºåŒç¼“å†²
+//µ¥É«ÏÔÊ¾Ë«»º³å
     // if(BufferSwapFlag==false)
     // {
     //     BufferSwapFlag=true;
@@ -337,7 +342,7 @@ void Show_DoubleBuffer()//ç¼“å†²
     //     SetConsoleActiveScreenBuffer(hOutPut);
     // }
 }
-void Input() //è¾“å…¥
+void Input() //ÊäÈë
 {
     if (_kbhit())
     {
@@ -364,7 +369,7 @@ void Input() //è¾“å…¥
         }
     }
 }
-void Logic() //é€»è¾‘
+void Logic() //Âß¼­
 {
 
     switch (dir)
@@ -392,12 +397,12 @@ void Logic() //é€»è¾‘
         score += 10;
     }
 
-    //åˆ¤æ–­å‡ºç•Œï¼Œæ¸¸æˆç»“æŸ
+    //ÅĞ¶Ï³ö½ç£¬ÓÎÏ·½áÊø
      if(x>width-2||x<=0||y>height-1||y<0)
     {
         gameOver=true;
     }
-    //åˆ¤æ–­èº«ä½“ä¸å¤´ç›¸æ’ï¼Œæ¸¸æˆç»“æŸ
+    //ÅĞ¶ÏÉíÌåÓëÍ·Ïà×²£¬ÓÎÏ·½áÊø
     for(int i=1;i<nTail;i++)
     {
         if(tailX[i]==x&&tailY[i]==y)
@@ -420,19 +425,23 @@ void Logic() //é€»è¾‘
         prevX = prev2X;
         prevY = prev2Y;
     }
-    Sleep(100);
 }
 int main()
 {
 
     Initial();
+    DrawMap();
     while (!gameOver)
     {
          //Draw(); 
-        Show_DoubleBuffer();
+        //Show_DoubleBuffer();
         Input();
+        eraseSnake();
         Logic();   
+        DrawLocally();
+        Sleep(100);
     }
+    Sleep(2000);
     _getch();
     system("pause");
     return 0;
