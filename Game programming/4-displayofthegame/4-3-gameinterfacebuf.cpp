@@ -13,15 +13,6 @@ bool gameOver;
 const int width = 20;
 const int height = 20;
 int x, y, fruitX, fruitY, score;
-//////////////////////////////////////
-//4-partial-renewal
-/////////////////////////////////////
-#define DETA_X 1;
-#define DETA_Y 1;
-#define EDGE_THICKNESS 1;
-HANDLE h=GetStdHandle(STD_OUTPUT_HANDLE);
-bool fruitFlash=true;
-/////////////////////////////////////////
 enum eDirection
 {
     STOP = 0,
@@ -33,11 +24,15 @@ enum eDirection
 eDirection dir;
 char ScreenData[width + 5][height + 5];
 int tailX[100], tailY[100];
-int nTail=1;
+int nTail = 1;
+#define DETA_X 1;
+#define DETA_Y 1;
+#define EDGE_THICKNESS 1;
+HANDLE h=GetStdHandle(STD_OUTPUT_HANDLE);
 void Initial()
 {
-////////////////////////////////////
-//创建新的缓冲区
+    ////////////////////////////////////
+    //创建新的缓冲区
     hOutBuf = CreateConsoleScreenBuffer(
         GENERIC_WRITE,
         FILE_SHARE_WRITE,
@@ -50,16 +45,26 @@ void Initial()
         NULL,
         CONSOLE_TEXTMODE_BUFFER,
         NULL);
-///////////////////////////////////
-///////////////////////////////////
-//对两个缓冲区进行初始化，隐藏两个缓冲区里的光标
+    ///////////////////////////////////
+    ///////////////////////////////////
+    //对两个缓冲区进行初始化，隐藏两个缓冲区里的光标
 
     CONSOLE_CURSOR_INFO cci;
     cci.bVisible = 0;
     cci.dwSize = 1;
     SetConsoleCursorInfo(hOutPut, &cci);
     SetConsoleCursorInfo(hOutBuf, &cci);
-///////////////////////////////////   
+    ///////////////////////////////////
+    /////////////////////////////////////////
+    // 4-3gameinterface
+    /////////////////////////////////////////
+     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTitleA("console_贪吃蛇") ;
+    COORD dSize={80,25};
+    SetConsoleScreenBufferSize(h,dSize);
+    CONSOLE_CURSOR_INFO _cursor={1,false};
+    SetConsoleCursorInfo(h, &_cursor);
+    //////////////////////////////////////////
     gameOver = false;
     dir = STOP;
     x = width / 2;
@@ -68,7 +73,13 @@ void Initial()
     fruitY = rand() % height;
     score = 0;
 }
-
+void setPos(int X,int Y)
+{
+    COORD pos;
+    pos.X=X+DETA_X;
+    pos.Y=Y+DETA_Y;
+    SetConsoleCursorPosition(h,pos);
+}
 void Draw() //绘制
 {
     system("cls");
@@ -80,7 +91,7 @@ void Draw() //绘制
         cout << "#";
     }
     cout << endl;
-    int tailflag=false;
+    int tailflag = false;
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -89,8 +100,8 @@ void Draw() //绘制
             {
                 cout << "#";
             }
-            
-             if (i == y && j == x)
+
+            if (i == y && j == x)
             {
                 textColor = 0x8a;
                 SetConsoleTextAttribute(h, textColor);
@@ -108,20 +119,19 @@ void Draw() //绘制
             }
             else
             {
-                tailflag=false;
+                tailflag = false;
                 for (int k = 0; k < nTail; k++)
                 {
                     if (tailX[k] == j && tailY[k] == i)
                     {
-                         cout << "o";
-                        tailflag=!tailflag;
+                        cout << "o";
+                        tailflag = !tailflag;
                     }
                 }
-                if(!tailflag)
+                if (!tailflag)
                 {
-                    cout<<" ";
+                    cout << " ";
                 }
-               
             }
             if (j == width - 1)
             {
@@ -136,6 +146,61 @@ void Draw() //绘制
     }
     cout << endl;
 }
+
+void showScore(int _x,int _y)
+{
+    setPos(_x+20,_y+17);
+    SetConsoleTextAttribute(h,0x0f);
+    cout<<"·当前积分：";
+    SetConsoleTextAttribute(h,0x0c);
+    cout<<score;
+}
+
+void Prompt_info(int _x,int _y)
+{
+    int initialX=20,initialY=0;
+
+    SetConsoleTextAttribute(h,0x0f);
+    setPos(_x+initialX,_y+initialY);
+    cout<<"游戏说明：";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"  A.蛇身自撞，游戏结束";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"  B.蛇可穿墙";
+    initialY++;
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"操作说明：";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"   向左移动：←A";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"   向右移动：→D";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"   向下移动：↓S";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"   向上移动：↑W";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"   开始游戏：任意方向键";
+    initialY++;
+    setPos(_x+initialX,_y+initialY);
+    cout<<"   退出游戏：x键退出";
+
+}
+void gameOver_info()
+{
+    setPos(5,8);
+    SetConsoleTextAttribute(h,0xec);
+    cout<<"游戏结束！！";
+    setPos(3,9);
+    cout<<"Y重新开始/N退出";
+}
 void Draw2() //绘制
 {
     int i, j;
@@ -146,7 +211,7 @@ void Draw2() //绘制
     }
     currentLine++;
 
-    for ( i = 0; i < height; i++)
+    for (i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
@@ -190,158 +255,10 @@ void Draw2() //绘制
     }
     currentLine++;
     sprintf(ScreenData[currentLine + i], "游戏得分：%d", score);
-    
+    Prompt_info(3,1);
+      showScore(3,1);
 }
-//////////////////////////////////////
-//4-partial-renewal
-/////////////////////////////////////
-void setPos(int X,int Y)
-{
-    COORD pos;
-    pos.X=X+DETA_X;
-    pos.Y=Y+DETA_Y;
-    SetConsoleCursorPosition(h,pos);
-}
-void DrawMap()
-{
-    system("cls");
-    HANDLE h=GetStdHandle(STD_OUTPUT_HANDLE);
-    int textColor=0x06;
-    SetConsoleTextAttribute(h,textColor);
 
-    setPos(-1,-1);
-    for(int i=0;i<width+2;i++)
-    {
-        cout<<"#";
-    }
-    for(int i=0;i<height;i++)
-    {
-        setPos(-1,i);
-        for(int j=0;j<width+2;j++)
-        {
-            if(j==0)
-            {
-                SetConsoleTextAttribute(h,textColor);
-                cout<<"#";
-            }else if(j==width+1)
-            {
-                SetConsoleTextAttribute(h,textColor);
-                cout<<"#";
-            }else{
-                SetConsoleTextAttribute(h,0x04);
-                cout<<" ";
-            }
-        }
-        cout<<endl;
-    }
-    setPos(-1,height);
-    for(int i=0;i<width+2;i++)
-    {
-        SetConsoleTextAttribute(h,textColor);
-        cout<<"#";
-    }
-    cout<<endl;
-    cout<<"游戏得分："<<score<<endl;
-}
-void eraseSnake()
-{
-    for(int i=0;i<nTail;i++)
-    {
-        setPos(tailX[i],tailY[i]);
-        cout<<" ";
-    }
-}
-void DrawLocally()
-{
-    if(!fruitFlash)
-    {
-        setPos(fruitX,fruitY);
-        SetConsoleTextAttribute(h,0x04);
-        cout<<"F";
-        fruitFlash=true;
-    }else{
-        setPos(fruitX,fruitY);
-        SetConsoleTextAttribute(h,0x04);
-        cout<<" ";
-        fruitFlash=false;
-    }
-
-    for(int i=0;i<nTail;i++)
-    {
-        setPos(tailX[i],tailY[i]);
-        if(i==0)
-        {
-            SetConsoleTextAttribute(h,0x09);
-            cout<<"O";
-        }else{
-            SetConsoleTextAttribute(h,0x0a);
-            cout<<"o";
-        }
-    }
-    setPos(0,height+1);
-    SetConsoleTextAttribute(h,0x06);
-    cout<<"游戏得分"<<score;
-}
-//////////////////////////////////////////
-void Show_DoubleBuffer()//缓冲
-{
-    HANDLE hBuf;
-    WORD textColor;
-    int i,j;
-    Draw2();
-    if(BufferSwapFlag==false)
-    {
-        BufferSwapFlag=true;
-        hBuf=hOutBuf;
-    }else{
-        BufferSwapFlag=false;
-       hBuf=hOutPut;
-    }
-    for(i=0;i<height+5;i++)
-    {
-        coord.Y=i;
-        for(j=0;j<width+5;j++)
-        {
-            coord.X=j;
-            if(ScreenData[i][j]=='O')
-            {
-                textColor=0x03;
-            }else if(ScreenData[i][j]=='F')
-            {
-                textColor=0x04;
-            }else if(ScreenData[i][j]=='o')
-            {
-                textColor=0x0a;
-            }else{
-                textColor=0x06;
-            }
-            WriteConsoleOutputAttribute(hBuf,&textColor,1,coord,&bytes);
-        }
-        coord.X=0;
-        WriteConsoleOutputCharacterA(hBuf,ScreenData[i],width,coord,&bytes);
-    }
-    SetConsoleActiveScreenBuffer(hBuf);
-/////////////////////////////////////////////////////////////////////////////////////
-//单色显示双缓冲
-    // if(BufferSwapFlag==false)
-    // {
-    //     BufferSwapFlag=true;
-    //     for(i=0;i<height+5;i++)
-    //     {
-    //         coord.Y=i;
-    //         WriteConsoleOutputCharacterA(hOutBuf,ScreenData[i],width,coord,&bytes);
-    //     }
-    //     SetConsoleActiveScreenBuffer(hOutBuf);
-    // }else{
-    //     BufferSwapFlag=false;
-    //     for(i=0;i<height+5;i++)
-    //     {
-    //         coord.Y=i;
-    //         WriteConsoleOutputCharacterA(hOutPut,ScreenData[i],width,coord,&bytes);
-    //     }
-    //     SetConsoleActiveScreenBuffer(hOutPut);
-    // }
-}
 void Input() //输入
 {
     if (_kbhit())
@@ -398,16 +315,16 @@ void Logic() //逻辑
     }
 
     //判断出界，游戏结束
-     if(x>width-2||x<=0||y>height-1||y<0)
+    if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
     {
-        gameOver=true;
+        gameOver = true;
     }
     //判断身体与头相撞，游戏结束
-    for(int i=1;i<nTail;i++)
+    for (int i = 1; i < nTail; i++)
     {
-        if(tailX[i]==x&&tailY[i]==y)
+        if (tailX[i] == x && tailY[i] == y)
         {
-            gameOver=true;
+            gameOver = true;
         }
     }
 
@@ -425,24 +342,91 @@ void Logic() //逻辑
         prevX = prev2X;
         prevY = prev2Y;
     }
+    Sleep(100);
+}
+
+void Show_DoubleBuffer() //缓冲
+{
+    HANDLE hBuf;
+    WORD textColor;
+    int i, j;
+    Draw2();
+    
+    if (BufferSwapFlag == false)
+    {
+        BufferSwapFlag = true;
+        hBuf = hOutBuf;
+    }
+    else
+    {
+        BufferSwapFlag = false;
+        hBuf = hOutPut;
+    }
+    for (i = 0; i < height + 5; i++)
+    {
+        coord.Y = i;
+        for (j = 0; j < width + 5; j++)
+        {
+            coord.X = j;
+            if (ScreenData[i][j] == 'O')
+            {
+                textColor = 0x03;
+            }
+            else if (ScreenData[i][j] == 'F')
+            {
+                textColor = 0x04;
+            }
+            else if (ScreenData[i][j] == 'o')
+            {
+                textColor = 0x0a;
+            }
+            else
+            {
+                textColor = 0x06;
+            }
+            WriteConsoleOutputAttribute(hBuf, &textColor, 1, coord, &bytes);
+        }
+        coord.X = 0;
+        WriteConsoleOutputCharacterA(hBuf, ScreenData[i], width, coord, &bytes);
+    }
+    SetConsoleActiveScreenBuffer(hBuf);
+    /////////////////////////////////////////////////////////////////////////////////////
+    //单色显示双缓冲
+    // if(BufferSwapFlag==false)
+    // {
+    //     BufferSwapFlag=true;
+    //     for(i=0;i<height+5;i++)
+    //     {
+    //         coord.Y=i;
+    //         WriteConsoleOutputCharacterA(hOutBuf,ScreenData[i],width,coord,&bytes);
+    //     }
+    //     SetConsoleActiveScreenBuffer(hOutBuf);
+    // }else{
+    //     BufferSwapFlag=false;
+    //     for(i=0;i<height+5;i++)
+    //     {
+    //         coord.Y=i;
+    //         WriteConsoleOutputCharacterA(hOutPut,ScreenData[i],width,coord,&bytes);
+    //     }
+    //     SetConsoleActiveScreenBuffer(hOutPut);
+    // }
 }
 int main()
 {
 
     Initial();
-    DrawMap();
+    
+
     while (!gameOver)
     {
-         //Draw(); 
-        //Show_DoubleBuffer();
+        // Draw();
+        Show_DoubleBuffer();
         Input();
-        eraseSnake();
-        Logic();   
-        DrawLocally();
-        Sleep(100);
+        Logic();
+      
     }
-    Sleep(2000);
-    _getch();
+    
+    setPos(0,23);
     system("pause");
     return 0;
 }
