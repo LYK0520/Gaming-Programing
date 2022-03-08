@@ -38,6 +38,30 @@ int nTail = 1;
 // 5-1-gameloopcontrol
 bool isPause = false;
 ////////////////////////////////////////
+/////////////////////////////////////////
+//5-2-Gameframeratemanagement
+////////////////////////////////////////
+const int FRAMES_PER_SECOND =25;
+const int SKIP_TICKS=1000/FRAMES_PER_SECOND;
+DWORD next_Game_Tick=GetTickCount();
+int sleep_Time=0;
+#define DIFFICULTY_FACTOR 50
+/////////////////////////////////////////
+//5-3-code maintenance and management
+////////////////////////////////////////
+#define STAGE_WIDTH 20
+#define STAGE_HEIGHT 20
+#define WINDOW_WIDTH 80
+#define WINDOW_HEIGHT 25
+#define CORNER_X 1
+#define CORNER_Y 1
+#define THICKNESS 1
+#define MAXLENGTH 100
+#define COLOR_WALL Ox06
+#define COLOR_TEXT 0x0f
+#define COLOR_TEXT2 0xec
+#define COLOR_SCORE 0x0c
+#define COLOR_FRUIT 0x04
 void Initial()
 {
     ////////////////////////////////////
@@ -510,21 +534,21 @@ void Logic() //逻辑
         score += 10;
     }
 
-    if(x>=width) x=0;else if(x<0) x=width-1;
-    if(y>=height) y=0;else if(y<0) y=height-1;
-    // //判断出界，游戏结束
-    // if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
-    // {
-    //     gameOver = true;
-    // }
-    // //判断身体与头相撞，游戏结束
-    // for (int i = 1; i < nTail; i++)
-    // {
-    //     if (tailX[i] == x && tailY[i] == y)
-    //     {
-    //         gameOver = true;
-    //     }
-    // }
+    // if(x>=width) x=0;else if(x<0) x=width-1;
+    // if(y>=height) y=0;else if(y<0) y=height-1;
+    //判断出界，游戏结束
+    if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
+    {
+        gameOver = true;
+    }
+    //判断身体与头相撞，游戏结束
+    for (int i = 1; i < nTail; i++)
+    {
+        if (tailX[i] == x && tailY[i] == y)
+        {
+            gameOver = true;
+        }
+    }
 
     int prevX = tailX[0];
     int prevY = tailY[0];
@@ -561,7 +585,21 @@ int main()
             Logic();
             DrawLocally();
             showScore(5, 1);
-            Sleep(100);
+            ///////////////////////////////////
+            //5-2-Gameframeratemanagement
+            /////////////////////////////////////
+            //Sleep(100);
+            // next_Game_Tick+=SKIP_TICKS;
+            // sleep_Time=next_Game_Tick-GetTickCount();
+            // if(sleep_Time>=0)
+            // {
+            //     Sleep(sleep_Time);
+            // }
+            ////////////////////////////////////////
+            //jiezouyunandu
+            //////////////////////////////////////
+            int sleep_Time=200/(score/DIFFICULTY_FACTOR+1);
+            Sleep(sleep_Time);
         }
         nTail=1;
         gameOver_info();
