@@ -1,6 +1,24 @@
 #include <bits/stdc++.h>
 #include <windows.h>
 #include <conio.h>
+/////////////////////////////////////////
+//5-3-code maintenance and management
+////////////////////////////////////////
+#define STAGE_WIDTH 20
+#define STAGE_HEIGHT 20
+#define WINDOW_WIDTH 80
+#define WINDOW_HEIGHT 25
+#define CORNER_X 1
+#define CORNER_Y 1
+#define THICKNESS 1
+#define MAXLENGTH 100
+#define COLOR_WALL 0x06
+#define COLOR_TEXT 0x0f
+#define COLOR_TEXT2 0xec
+#define COLOR_SCORE 0x0c
+#define COLOR_FRUIT 0x04
+#define COLOR_SNAKE_HEAD 0x09
+#define COLOR_SNAKE_BODY 0x0a
 using namespace std;
 ////////////////////////////////////
 //双缓冲句柄变量以及缓冲区描述变量
@@ -10,8 +28,8 @@ DWORD bytes = 0;
 bool BufferSwapFlag = false;
 ///////////////////////////////////
 bool gameOver;
-const int width = 20;
-const int height = 20;
+const int width = STAGE_WIDTH;
+const int height = STAGE_HEIGHT;
 int x, y, fruitX, fruitY, score;
 //////////////////////////////////////
 // 4-partial-renewal
@@ -32,7 +50,7 @@ enum eDirection
 };
 eDirection dir;
 char ScreenData[width + 5][height + 5];
-int tailX[100], tailY[100];
+int tailX[MAXLENGTH], tailY[MAXLENGTH];
 int nTail = 1;
 ////////////////////////////////////////
 // 5-1-gameloopcontrol
@@ -46,22 +64,8 @@ const int SKIP_TICKS=1000/FRAMES_PER_SECOND;
 DWORD next_Game_Tick=GetTickCount();
 int sleep_Time=0;
 #define DIFFICULTY_FACTOR 50
-/////////////////////////////////////////
-//5-3-code maintenance and management
-////////////////////////////////////////
-#define STAGE_WIDTH 20
-#define STAGE_HEIGHT 20
-#define WINDOW_WIDTH 80
-#define WINDOW_HEIGHT 25
-#define CORNER_X 1
-#define CORNER_Y 1
-#define THICKNESS 1
-#define MAXLENGTH 100
-#define COLOR_WALL Ox06
-#define COLOR_TEXT 0x0f
-#define COLOR_TEXT2 0xec
-#define COLOR_SCORE 0x0c
-#define COLOR_FRUIT 0x04
+
+
 void Initial()
 {
     ////////////////////////////////////
@@ -93,7 +97,7 @@ void Initial()
     /////////////////////////////////////////
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTitleA("console_贪吃蛇");
-    COORD dSize = {80, 25};
+    COORD dSize = {WINDOW_WIDTH, WINDOW_HEIGHT};
     SetConsoleScreenBufferSize(h, dSize);
     CONSOLE_CURSOR_INFO _cursor = {1, false};
     SetConsoleCursorInfo(h, &_cursor);
@@ -111,7 +115,7 @@ void Draw() //绘制
 {
     system("cls");
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    int textColor = 0X06;
+    int textColor = COLOR_WALL;
     SetConsoleTextAttribute(h, textColor);
     for (int i = 0; i < width; i++)
     {
@@ -242,17 +246,17 @@ void DrawMap()
 {
     system("cls");
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    int textColor = 0x06;
+    int textColor = COLOR_WALL;
     SetConsoleTextAttribute(h, textColor);
 
-    setPos(-1, -1);
+    setPos(-THICKNESS, -THICKNESS);
     for (int i = 0; i < width + 2; i++)
     {
         cout << "#";
     }
     for (int i = 0; i < height; i++)
     {
-        setPos(-1, i);
+        setPos(-THICKNESS, i);
         for (int j = 0; j < width + 2; j++)
         {
             if (j == 0)
@@ -312,17 +316,17 @@ void DrawLocally()
         setPos(tailX[i], tailY[i]);
         if (i == 0)
         {
-            SetConsoleTextAttribute(h, 0x09);
+            SetConsoleTextAttribute(h, COLOR_SNAKE_HEAD);
             cout << "O";
         }
         else
         {
-            SetConsoleTextAttribute(h, 0x0a);
+            SetConsoleTextAttribute(h, COLOR_SNAKE_BODY);
             cout << "o";
         }
     }
     setPos(0, height + 1);
-    SetConsoleTextAttribute(h, 0x06);
+    SetConsoleTextAttribute(h, COLOR_TEXT);
     cout << "游戏得分" << score;
 }
 //////////////////////////////////////////
