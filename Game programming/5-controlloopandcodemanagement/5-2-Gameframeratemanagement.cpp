@@ -39,12 +39,12 @@ int nTail = 1;
 bool isPause = false;
 ////////////////////////////////////////
 /////////////////////////////////////////
-//5-2-Gameframeratemanagement
+// 5-2-Gameframeratemanagement
 ////////////////////////////////////////
-const int FRAMES_PER_SECOND =25;
-const int SKIP_TICKS=1000/FRAMES_PER_SECOND;
-DWORD next_Game_Tick=GetTickCount();
-int sleep_Time=0;
+const int FRAMES_PER_SECOND = 25;
+const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
+DWORD next_Game_Tick = GetTickCount();
+int sleep_Time = 0;
 #define DIFFICULTY_FACTOR 50
 void Initial()
 {
@@ -455,35 +455,36 @@ void Input() //输入
             isPause = true;
             break;
         case 224:
-            switch(_getch())
+            switch (_getch())
             {
-                case 72:
-                    if(dir!= DOWN)
-                    {
-                        dir=UP;
-                    }
-                    break;
-                case 80:
-                    if(dir!= UP)
-                    {
-                        dir=DOWN;
-                    }
-                    break;
-                case 75:
-                    if(dir!= RIGHT)
-                    {
-                        dir=LEFT;
-                    }
-                    break;
-                case 77:
-                    if(dir!= LEFT)
-                    {
-                        dir=RIGHT;
-                    }
-                    break;
-                default:
-                    break;
+            case 72:
+                if (dir != DOWN)
+                {
+                    dir = UP;
+                }
+                break;
+            case 80:
+                if (dir != UP)
+                {
+                    dir = DOWN;
+                }
+                break;
+            case 75:
+                if (dir != RIGHT)
+                {
+                    dir = LEFT;
+                }
+                break;
+            case 77:
+                if (dir != LEFT)
+                {
+                    dir = RIGHT;
+                }
+                break;
+            default:
+                break;
             }
+            
         default:
 
             break;
@@ -518,21 +519,27 @@ void Logic() //逻辑
         score += 10;
     }
 
-    // if(x>=width) x=0;else if(x<0) x=width-1;
-    // if(y>=height) y=0;else if(y<0) y=height-1;
-    //判断出界，游戏结束
-    if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
-    {
-        gameOver = true;
-    }
-    //判断身体与头相撞，游戏结束
-    for (int i = 1; i < nTail; i++)
-    {
-        if (tailX[i] == x && tailY[i] == y)
-        {
-            gameOver = true;
-        }
-    }
+    if (x >= width)
+        x = 0;
+    else if (x < 0)
+        x = width - 1;
+    if (y >= height)
+        y = 0;
+    else if (y < 0)
+        y = height - 1;
+    // //判断出界，游戏结束
+    // if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
+    // {
+    //     gameOver = true;
+    // }
+    // //判断身体与头相撞，游戏结束
+    // for (int i = 1; i < nTail; i++)
+    // {
+    //     if (tailX[i] == x && tailY[i] == y)
+    //     {
+    //         gameOver = true;
+    //     }
+    // }
 
     int prevX = tailX[0];
     int prevY = tailY[0];
@@ -570,22 +577,22 @@ int main()
             DrawLocally();
             showScore(5, 1);
             ///////////////////////////////////
-            //5-2-Gameframeratemanagement
+            // 5-2-Gameframeratemanagement
             /////////////////////////////////////
-            //Sleep(100);
-            // next_Game_Tick+=SKIP_TICKS;
-            // sleep_Time=next_Game_Tick-GetTickCount();
-            // if(sleep_Time>=0)
-            // {
-            //     Sleep(sleep_Time);
-            // }
+            // Sleep(100);
+            //  next_Game_Tick+=SKIP_TICKS;
+            //  sleep_Time=next_Game_Tick-GetTickCount();
+            //  if(sleep_Time>=0)
+            //  {
+            //      Sleep(sleep_Time);
+            //  }
             ////////////////////////////////////////
-            //jiezouyunandu
+            // jiezouyunandu
             //////////////////////////////////////
-            int sleep_Time=200/(score/DIFFICULTY_FACTOR+1);
+            int sleep_Time = 200 / (score / DIFFICULTY_FACTOR + 1);
             Sleep(sleep_Time);
         }
-        nTail=1;
+        nTail = 1;
         gameOver_info();
         while (gameOver)
         {

@@ -454,13 +454,7 @@ void Logic() //Âß¼­
     default:
         break;
     }
-    if (x == fruitX && y == fruitY)
-    {
-        fruitX = rand() % width;
-        fruitY = rand() % height;
-        nTail++;
-        score += 10;
-    }
+
 
     //ÅÐ¶Ï³ö½ç£¬ÓÎÏ·½áÊø
      if(x>width-2||x<=0||y>height-1||y<0)
@@ -489,6 +483,13 @@ void Logic() //Âß¼­
         tailY[i] = prevY;
         prevX = prev2X;
         prevY = prev2Y;
+    }
+       if (x == fruitX && y == fruitY)
+    {
+        fruitX = rand() % width;
+        fruitY = rand() % height;
+        nTail++;
+        score += 10;
     }
 }
 int main()

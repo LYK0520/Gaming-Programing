@@ -10,6 +10,7 @@ HANDLE hOutPut, hOutBuf;
 COORD coord = {0, 0};
 DWORD bytes = 0;
 bool BufferSwapFlag = false;
+bool change=0;
 ///////////////////////////////////
 bool gameOver;
 const int width = 20;
@@ -241,7 +242,7 @@ void DrawMap()
     for (int i = 0; i < width + 2; i++)
     {
         if (isFullWidth)
-            cout << "?";
+            cout << "□";
         else
         {
             cout << "#";
@@ -256,7 +257,7 @@ void DrawMap()
             {
                 SetConsoleTextAttribute(h, textColor);
                 if (isFullWidth)
-                    cout << "?";
+                    cout << "□";
                 else
                 {
                     cout << "#";
@@ -266,7 +267,7 @@ void DrawMap()
             {
                 SetConsoleTextAttribute(h, textColor);
                 if (isFullWidth)
-                    cout << "?";
+                    cout << "□";
                 else
                 {
                     cout << "#";
@@ -290,7 +291,7 @@ void DrawMap()
     {
         SetConsoleTextAttribute(h, textColor);
         if(isFullWidth)
-            cout<<"?";
+            cout<<"□";
         else{
             cout<<"#";
         }
@@ -310,14 +311,62 @@ void eraseSnake()
         }
     }
 }
+void Prompt_info(int _x, int _y)
+{
+    int initialX = 20, initialY = 0;
+
+    SetConsoleTextAttribute(h, 0x0f);
+    setPos(_x + initialX, _y + initialY);
+    cout << "游戏说明：";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "  A.蛇身自撞，游戏结束";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "  B.蛇可穿墙";
+    initialY++;
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "操作说明：";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   向左移动：←A";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   向右移动：→D";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   向下移动：↓S";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   向上移动：↑W";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   开始游戏：任意方向键";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   退出游戏：x键退出";
+}
 void DrawLocally()
 {
+    if(isFullWidth==false&& change==0)
+        {
+            DrawMap();
+            Prompt_info(3, 1);
+            change=1;
+        }
+        if(isFullWidth==true&& change==1)
+        {
+            DrawMap();
+            Prompt_info(3, 1);
+            change=0;
+        }
     if (!fruitFlash)
     {
         setPos(fruitX, fruitY);
         SetConsoleTextAttribute(h, 0x04);
         if(isFullWidth)
-            cout<<"★";
+            cout<<"☆";
         else{
             cout<<"F";
         }
@@ -342,7 +391,7 @@ void DrawLocally()
         {
             SetConsoleTextAttribute(h, 0x09);
             if(isFullWidth)
-            cout<<"?";
+            cout<<"Ｏ";
         else{
             cout<<"O";
         }
@@ -351,7 +400,7 @@ void DrawLocally()
         {
             SetConsoleTextAttribute(h, 0x0a);
             if(isFullWidth)
-            cout<<"?";
+            cout<<"ｏ";
         else{
             cout<<"o";
         }
@@ -437,42 +486,7 @@ void showScore(int _x, int _y)
     cout << score;
 }
 
-void Prompt_info(int _x, int _y)
-{
-    int initialX = 20, initialY = 0;
 
-    SetConsoleTextAttribute(h, 0x0f);
-    setPos(_x + initialX, _y + initialY);
-    cout << "游戏说明：";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "  A.蛇身自撞，游戏结束";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "  B.蛇可穿墙";
-    initialY++;
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "操作说明：";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "   向左移动：←A";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "   向右移动：→D";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "   向下移动：↓S";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "   向上移动：↑W";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "   开始游戏：任意方向键";
-    initialY++;
-    setPos(_x + initialX, _y + initialY);
-    cout << "   退出游戏：x键退出";
-}
 void gameOver_info()
 {
     setPos(5, 8);
@@ -501,6 +515,10 @@ void Input() //输入
             break;
         case 'x':
             gameOver = true;
+            break;
+        case ' ':
+            isFullWidth=!isFullWidth;
+            
             break;
         default:
 
@@ -535,25 +553,27 @@ void Logic() //逻辑
         nTail++;
         score += 10;
     }
-
+    // if(x>=width) x=0;else if(x<0) x=width-1;
+    // if(y>=height) y=0;else if(y<0) y=height-1;
     //判断出界，游戏结束
     if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
     {
         gameOver = true;
     }
-    //判断身体与头相撞，游戏结束
-    for (int i = 1; i < nTail; i++)
-    {
-        if (tailX[i] == x && tailY[i] == y)
-        {
-            gameOver = true;
-        }
-    }
+    // //判断身体与头相撞，游戏结束
+    // for (int i = 1; i < nTail; i++)
+    // {
+    //     if (tailX[i] == x && tailY[i] == y)
+    //     {
+    //         gameOver = true;
+    //     }
+    // }
 
     int prevX = tailX[0];
     int prevY = tailY[0];
     int prev2X, prev2Y;
-
+    tailX[0] = x;
+    tailY[0] = y;
     for (int i = 1; i < nTail; i++)
     {
         prev2X = tailX[i];
@@ -577,6 +597,7 @@ int main()
         Input();
         eraseSnake();
         Logic();
+        
         DrawLocally();
         showScore(3, 1);
         Sleep(100);
