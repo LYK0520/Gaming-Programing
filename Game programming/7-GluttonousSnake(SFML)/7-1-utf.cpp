@@ -36,7 +36,7 @@ void Initial()
 {
     window.setFramerateLimit(60);
 
-    if(!font.loadFromFile("../data/Fonts/simsunb.ttf"))
+    if(!font.loadFromFile("../data/Fonts/simsun.ttc"))
     {
         cout<<"字体没有找到"<<endl;
     }else{
@@ -109,7 +109,7 @@ void Prompt_info(int _x, int _y)
     text.setString(L"  A.蛇身自撞，游戏结束");window.draw(text);
     initialY+=CharacterSize;
     text.setPosition(_x+initialX,_y+initialY);
-    text.setString(L"    B.蛇可穿墙");window.draw(text);
+    text.setString(L"  B.蛇可穿墙");window.draw(text);
     initialY+=CharacterSize;
     initialY+=CharacterSize;
     text.setPosition(_x+initialX,_y+initialY);
@@ -147,22 +147,22 @@ void Input()
             window.close();
         }
     }
-    if(Keyboard::isKeyPressed(Keyboard::Left))
+    if(Keyboard::isKeyPressed(Keyboard::Left)||Keyboard::isKeyPressed(Keyboard::A))
     {
         if(dir!=RIGHT)
             dir=LEFT;
     }
-    if(Keyboard::isKeyPressed(Keyboard::Right))
+    if(Keyboard::isKeyPressed(Keyboard::Right)||Keyboard::isKeyPressed(Keyboard::D))
     {
         if(dir!=LEFT)
             dir=RIGHT;
     }
-    if(Keyboard::isKeyPressed(Keyboard::Up))
+    if(Keyboard::isKeyPressed(Keyboard::Up)||Keyboard::isKeyPressed(Keyboard::W))
     {
         if(dir!=DOWN)
             dir=UP;
     }
-    if(Keyboard::isKeyPressed(Keyboard::Down))
+    if(Keyboard::isKeyPressed(Keyboard::Down)||Keyboard::isKeyPressed(Keyboard::S))
     {
         if(dir!=UP)
             dir=DOWN;
