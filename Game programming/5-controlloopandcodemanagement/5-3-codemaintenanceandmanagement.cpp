@@ -439,6 +439,10 @@ void Prompt_info(int _x, int _y)
     initialY++;
     setPos(_x + initialX, _y + initialY);
     cout << "   退出游戏：x键退出";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout <<"难度等级为"<<(score / DIFFICULTY_FACTOR + 1)<<"级";
+
 }
 void gameOver_info()
 {
@@ -609,6 +613,10 @@ int main()
             // }else if(pauseKey!=0){
             //     pauseKey=0;
             // }
+            if(score % DIFFICULTY_FACTOR==0)
+            {
+                Prompt_info(5, 1);
+            }
             DrawLocally();
             showScore(5, 1);
             ///////////////////////////////////

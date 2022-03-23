@@ -34,6 +34,7 @@ eDirection dir;
 char ScreenData[width + 5][height + 5];
 int tailX[100], tailY[100];
 int nTail = 1;
+bool isFullWidth;
 ////////////////////////////////////////
 // 5-1-gameloopcontrol
 bool isPause = false;
@@ -454,6 +455,8 @@ void Input() // ‰»Î
         case ' ':
             isPause = true;
             break;
+        case 13:
+            isFullWidth=!isFullWidth;
         case 224:
             switch (_getch())
             {
