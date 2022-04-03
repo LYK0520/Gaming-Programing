@@ -10,7 +10,7 @@ HANDLE hOutPut, hOutBuf;
 COORD coord = {0, 0};
 DWORD bytes = 0;
 bool BufferSwapFlag = false;
-bool change=0;
+bool change = 0;
 ///////////////////////////////////
 bool gameOver;
 const int width = 20;
@@ -90,127 +90,6 @@ void Initial()
     memset(tailY, 0, sizeof(tailY));
 }
 
-void Draw() //绘制
-{
-    system("cls");
-    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    int textColor = 0X86;
-    SetConsoleTextAttribute(h, textColor);
-    for (int i = 0; i < width; i++)
-    {
-        cout << "#";
-    }
-    cout << endl;
-    int tailflag = false;
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            if (j == 0)
-            {
-                cout << "#";
-            }
-
-            if (i == y && j == x)
-            {
-                textColor = 0x8a;
-                SetConsoleTextAttribute(h, textColor);
-                cout << "O";
-                int textColor = 0X86;
-                SetConsoleTextAttribute(h, textColor);
-            }
-            else if (i == fruitY && j == fruitX)
-            {
-                textColor = 0x84;
-                SetConsoleTextAttribute(h, textColor);
-                cout << "F";
-                int textColor = 0X86;
-                SetConsoleTextAttribute(h, textColor);
-            }
-            else
-            {
-                tailflag = false;
-                for (int k = 0; k < nTail; k++)
-                {
-                    if (tailX[k] == j && tailY[k] == i)
-                    {
-                        cout << "o";
-                        tailflag = !tailflag;
-                    }
-                }
-                if (!tailflag)
-                {
-                    cout << " ";
-                }
-            }
-            if (j == width - 1)
-            {
-                cout << "#";
-            }
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < width; i++)
-    {
-        cout << "#";
-    }
-    cout << endl;
-}
-void Draw2() //绘制
-{
-    int i, j;
-    int currentLine = 0;
-    for (j = 0; j < width + 2; j++)
-    {
-        ScreenData[currentLine][j] = '#';
-    }
-    currentLine++;
-
-    for (i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            if (j == 0)
-            {
-                ScreenData[currentLine + i][j] = '#';
-            }
-            else if (i == fruitY && j == fruitX)
-            {
-                ScreenData[currentLine + i][j] = 'F';
-            }
-            else if (i == y && j == x)
-            {
-                ScreenData[currentLine + i][j] = 'O';
-            }
-            else
-            {
-                bool flagPrint = false;
-                for (int k = 0; k < nTail; k++)
-                {
-                    if (tailX[k] == j && tailY[k] == i)
-                    {
-                        ScreenData[currentLine + i][j] = 'o';
-                        flagPrint = true;
-                    }
-                }
-                if (!flagPrint)
-                {
-                    ScreenData[currentLine + i][j] = ' ';
-                }
-            }
-            if (j == width - 1)
-            {
-                ScreenData[currentLine + i][j] = '#';
-            }
-        }
-    }
-    for (int j = 0; j < width + 2; j++)
-    {
-        ScreenData[currentLine + i][j] = '#';
-    }
-    currentLine++;
-    sprintf(ScreenData[currentLine + i], "游戏得分：%d", score);
-}
 //////////////////////////////////////
 // 4-partial-renewal
 /////////////////////////////////////
@@ -290,10 +169,11 @@ void DrawMap()
     for (int i = 0; i < width + 2; i++)
     {
         SetConsoleTextAttribute(h, textColor);
-        if(isFullWidth)
-            cout<<"□";
-        else{
-            cout<<"#";
+        if (isFullWidth)
+            cout << "□";
+        else
+        {
+            cout << "#";
         }
     }
     cout << endl;
@@ -304,10 +184,11 @@ void eraseSnake()
     for (int i = 0; i < nTail; i++)
     {
         setPos(tailX[i], tailY[i]);
-        if(isFullWidth)
-            cout<<"   ";
-        else{
-            cout<<" ";
+        if (isFullWidth)
+            cout << "   ";
+        else
+        {
+            cout << " ";
         }
     }
 }
@@ -349,26 +230,27 @@ void Prompt_info(int _x, int _y)
 }
 void DrawLocally()
 {
-    if(isFullWidth==false&& change==0)
-        {
-            DrawMap();
-            Prompt_info(3, 1);
-            change=1;
-        }
-        if(isFullWidth==true&& change==1)
-        {
-            DrawMap();
-            Prompt_info(3, 1);
-            change=0;
-        }
+    if (isFullWidth == false && change == 0)
+    {
+        DrawMap();
+        Prompt_info(3, 1);
+        change = 1;
+    }
+    if (isFullWidth == true && change == 1)
+    {
+        DrawMap();
+        Prompt_info(3, 1);
+        change = 0;
+    }
     if (!fruitFlash)
     {
         setPos(fruitX, fruitY);
         SetConsoleTextAttribute(h, 0x04);
-        if(isFullWidth)
-            cout<<"☆";
-        else{
-            cout<<"F";
+        if (isFullWidth)
+            cout << "☆";
+        else
+        {
+            cout << "F";
         }
         fruitFlash = true;
     }
@@ -376,10 +258,11 @@ void DrawLocally()
     {
         setPos(fruitX, fruitY);
         SetConsoleTextAttribute(h, 0x04);
-       if(isFullWidth)
-            cout<<"  ";
-        else{
-            cout<<" ";
+        if (isFullWidth)
+            cout << "  ";
+        else
+        {
+            cout << " ";
         }
         fruitFlash = false;
     }
@@ -390,91 +273,27 @@ void DrawLocally()
         if (i == 0)
         {
             SetConsoleTextAttribute(h, 0x09);
-            if(isFullWidth)
-            cout<<"Ｏ";
-        else{
-            cout<<"O";
-        }
+            if (isFullWidth)
+                cout << "Ｏ";
+            else
+            {
+                cout << "O";
+            }
         }
         else
         {
             SetConsoleTextAttribute(h, 0x0a);
-            if(isFullWidth)
-            cout<<"ｏ";
-        else{
-            cout<<"o";
-        }
+            if (isFullWidth)
+                cout << "ｏ";
+            else
+            {
+                cout << "o";
+            }
         }
     }
     setPos(0, height + 1);
     SetConsoleTextAttribute(h, 0x06);
     cout << "游戏得分" << score;
-}
-//////////////////////////////////////////
-void Show_DoubleBuffer() //缓冲
-{
-    HANDLE hBuf;
-    WORD textColor;
-    int i, j;
-    Draw2();
-    if (BufferSwapFlag == false)
-    {
-        BufferSwapFlag = true;
-        hBuf = hOutBuf;
-    }
-    else
-    {
-        BufferSwapFlag = false;
-        hBuf = hOutPut;
-    }
-    for (i = 0; i < height + 5; i++)
-    {
-        coord.Y = i;
-        for (j = 0; j < width + 5; j++)
-        {
-            coord.X = j;
-            if (ScreenData[i][j] == 'O')
-            {
-                textColor = 0x03;
-            }
-            else if (ScreenData[i][j] == 'F')
-            {
-                textColor = 0x04;
-            }
-            else if (ScreenData[i][j] == 'o')
-            {
-                textColor = 0x0a;
-            }
-            else
-            {
-                textColor = 0x06;
-            }
-            WriteConsoleOutputAttribute(hBuf, &textColor, 1, coord, &bytes);
-        }
-        coord.X = 0;
-        WriteConsoleOutputCharacterA(hBuf, ScreenData[i], width, coord, &bytes);
-    }
-    SetConsoleActiveScreenBuffer(hBuf);
-    /////////////////////////////////////////////////////////////////////////////////////
-    //单色显示双缓冲
-    // if(BufferSwapFlag==false)
-    // {
-    //     BufferSwapFlag=true;
-    //     for(i=0;i<height+5;i++)
-    //     {
-    //         coord.Y=i;
-    //         WriteConsoleOutputCharacterA(hOutBuf,ScreenData[i],width,coord,&bytes);
-    //     }
-    //     SetConsoleActiveScreenBuffer(hOutBuf);
-    // }else{
-    //     BufferSwapFlag=false;
-    //     for(i=0;i<height+5;i++)
-    //     {
-    //         coord.Y=i;
-    //         WriteConsoleOutputCharacterA(hOutPut,ScreenData[i],width,coord,&bytes);
-    //     }
-    //     SetConsoleActiveScreenBuffer(hOutPut);
-    // }
 }
 
 void showScore(int _x, int _y)
@@ -485,7 +304,6 @@ void showScore(int _x, int _y)
     SetConsoleTextAttribute(h, 0x0c);
     cout << score;
 }
-
 
 void gameOver_info()
 {
@@ -517,8 +335,8 @@ void Input() //输入
             gameOver = true;
             break;
         case ' ':
-            isFullWidth=!isFullWidth;
-            
+            isFullWidth = !isFullWidth;
+
             break;
         default:
 
@@ -553,13 +371,13 @@ void Logic() //逻辑
         nTail++;
         score += 10;
     }
-    // if(x>=width) x=0;else if(x<0) x=width-1;
-    // if(y>=height) y=0;else if(y<0) y=height-1;
+    if(x>=width) x=0;else if(x<0) x=width-1;
+    if(y>=height) y=0;else if(y<0) y=height-1;
     //判断出界，游戏结束
-    if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
-    {
-        gameOver = true;
-    }
+    // if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
+    // {
+    //     gameOver = true;
+    // }
     // //判断身体与头相撞，游戏结束
     // for (int i = 1; i < nTail; i++)
     // {
@@ -597,7 +415,7 @@ int main()
         Input();
         eraseSnake();
         Logic();
-        
+
         DrawLocally();
         showScore(3, 1);
         Sleep(100);

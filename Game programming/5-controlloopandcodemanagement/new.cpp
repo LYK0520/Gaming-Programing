@@ -1,4 +1,3 @@
-
 #include <bits/stdc++.h>
 #include <windows.h>
 #include <conio.h>
@@ -26,7 +25,6 @@ using namespace std;
 HANDLE hOutPut, hOutBuf;
 COORD coord = {0, 0};
 DWORD bytes = 0;
-bool change=0;
 bool BufferSwapFlag = false;
 ///////////////////////////////////
 bool gameOver;
@@ -41,7 +39,12 @@ int x, y, fruitX, fruitY, score;
 #define EDGE_THICKNESS 1;
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 bool fruitFlash = true;
-bool isFullWidth=true;
+bool isFullWidth;
+bool change = 0;
+//代表第几个字母的比对
+int nowwordnumber=0;
+//next 一个单词通关标志
+int nextwordflag;
 /////////////////////////////////////////
 enum eDirection
 {
@@ -58,6 +61,14 @@ int nTail = 1;
 ////////////////////////////////////////
 // 5-1-gameloopcontrol
 bool isPause = false;
+
+struct flagxy
+{
+    int FruitX, FruitY;
+    bool flag=0;
+    int number;
+    string ch;
+}flagXY[width][height];
 ////////////////////////////////////////
 /////////////////////////////////////////
 // 5-2-Gameframeratemanagement
@@ -67,7 +78,90 @@ const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
 DWORD next_Game_Tick = GetTickCount();
 int sleep_Time = 0;
 #define DIFFICULTY_FACTOR 50
+string word[100];
+int nowword=1,totalword;
 
+std::string ToFull(std::string str)
+{
+ std::string result = "";  
+ unsigned char tmp; unsigned char tmp1;  
+ for (unsigned int i = 0; i < str.length(); i++)
+ {  
+  tmp = str[i];  
+  tmp1 = str[i + 1];  
+  //cout << "uchar:" << (int) tmp << endl;  
+  if (tmp>32 && tmp<128)
+  {//是半角字符
+   result += 163;//第一个字节设置为163
+   result += (unsigned char)str[i]+128;//第二个字节+128;  
+  }
+  else if (tmp >= 163)
+  {//是全角字符  
+   result += str.substr(i, 2);  
+   i++;  
+   continue;  
+  }
+  else if (tmp == 32)
+  {//处理半角空格  
+   result += 161; 
+   result += 161; 
+  }
+  else
+  {  
+   result += str.substr(i, 2);  
+   i++;
+  }
+ }
+ return result;  
+}
+
+
+
+string ToHalf(string str) {   
+    string result = "";   
+    unsigned char tmp; unsigned char tmp1;   
+    for (unsigned int i = 0; i < str.length(); i++) {   
+        tmp = str[i];   
+        tmp1 = str[i + 1];   
+        cout << "uchar:" << (int) tmp << endl;   
+        if (tmp == 163) {///第一个字节是163，标志着是全角字符   
+            result += (unsigned char) str[i + 1] - 128;   
+            i++;   
+            continue;   
+        } else if (tmp > 163) {//汉字   
+            result += str.substr(i, 2);   
+            i++;   
+            continue;   
+        } else if (tmp == 161 && tmp1 == 161) {///处理全角空格   
+            result += "";   
+            i++;   
+        } else {   
+            result += str.substr(i, 1); } } return result;   
+} 
+
+//从文件读入到string里
+void readFileIntoString(char *filename, string *inword)
+{
+
+    ifstream f(filename, ios::in);
+    int i = 1;
+    while (!f.eof())
+    {
+        f >> inword[i];
+        i++;
+    }
+    totalword=i-1;
+}
+//
+
+//
+//字母的位置记录
+// struct wordPosition
+// {
+    
+//     int number;
+//     char ch;
+// } wp[10][20];
 void Initial()
 {
     ////////////////////////////////////
@@ -98,150 +192,63 @@ void Initial()
     // 4-3gameinterface
     /////////////////////////////////////////
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTitleA("console_贪吃蛇");
-    COORD dSize = {WINDOW_WIDTH, WINDOW_HEIGHT};
+    SetConsoleTitleA("console_贪吃蛇 Full character display");
+    COORD dSize = {80, 25};
     SetConsoleScreenBufferSize(h, dSize);
     CONSOLE_CURSOR_INFO _cursor = {1, false};
     SetConsoleCursorInfo(h, &_cursor);
     //////////////////////////////////////////
     gameOver = false;
+    fruitFlash = false;
+    isFullWidth = true;
     dir = STOP;
     x = width / 2;
     y = height / 2;
     fruitX = rand() % width;
     fruitY = rand() % height;
+    
+    for (int j = 0; j < word[nowword].size(); j++)
+    {
+        while (1)
+        {
+            int x1, y1;
+            x1 = rand() % width;
+            y1 = rand() % height;
+            if (flagXY[x1][y1].flag == 0)
+            {
+                flagXY[x1][y1].flag = 1;
+                flagXY[x1][y1].ch=word[nowword].substr(j,1);
+                flagXY[x1][y1].number=nowword;
+                break;
+            }
+        }
+    }
     score = 0;
+    nTail = 1;
+    tailX[0] = x;
+    tailY[0] = y;
+    memset(tailX, 0, sizeof(tailX));
+    memset(tailY, 0, sizeof(tailY));
 }
 
-void Draw() //绘制
-{
-    system("cls");
-    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-    int textColor = COLOR_WALL;
-    SetConsoleTextAttribute(h, textColor);
-    for (int i = 0; i < width; i++)
-    {
-        cout << "#";
-    }
-    cout << endl;
-    int tailflag = false;
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            if (j == 0)
-            {
-                cout << "#";
-            }
-
-            if (i == y && j == x)
-            {
-                textColor = 0x0a;
-                SetConsoleTextAttribute(h, textColor);
-                cout << "O";
-                int textColor = 0X06;
-                SetConsoleTextAttribute(h, textColor);
-            }
-            else if (i == fruitY && j == fruitX)
-            {
-                textColor = 0x04;
-                SetConsoleTextAttribute(h, textColor);
-                cout << "F";
-                int textColor = 0X06;
-                SetConsoleTextAttribute(h, textColor);
-            }
-            else
-            {
-                tailflag = false;
-                for (int k = 0; k < nTail; k++)
-                {
-                    if (tailX[k] == j && tailY[k] == i)
-                    {
-                        cout << "o";
-                        tailflag = !tailflag;
-                    }
-                }
-                if (!tailflag)
-                {
-                    cout << " ";
-                }
-            }
-            if (j == width - 1)
-            {
-                cout << "#";
-            }
-        }
-        cout << endl;
-    }
-    for (int i = 0; i < width; i++)
-    {
-        cout << "#";
-    }
-    cout << endl;
-}
-void Draw2() //绘制
-{
-    int i, j;
-    int currentLine = 0;
-    for (j = 0; j < width + 2; j++)
-    {
-        ScreenData[currentLine][j] = '#';
-    }
-    currentLine++;
-
-    for (i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            if (j == 0)
-            {
-                ScreenData[currentLine + i][j] = '#';
-            }
-            else if (i == fruitY && j == fruitX)
-            {
-                ScreenData[currentLine + i][j] = 'F';
-            }
-            else if (i == y && j == x)
-            {
-                ScreenData[currentLine + i][j] = 'O';
-            }
-            else
-            {
-                bool flagPrint = false;
-                for (int k = 0; k < nTail; k++)
-                {
-                    if (tailX[k] == j && tailY[k] == i)
-                    {
-                        ScreenData[currentLine + i][j] = 'o';
-                        flagPrint = true;
-                    }
-                }
-                if (!flagPrint)
-                {
-                    ScreenData[currentLine + i][j] = ' ';
-                }
-            }
-            if (j == width - 1)
-            {
-                ScreenData[currentLine + i][j] = '#';
-            }
-        }
-    }
-    for (int j = 0; j < width + 2; j++)
-    {
-        ScreenData[currentLine + i][j] = '#';
-    }
-    currentLine++;
-    sprintf(ScreenData[currentLine + i], "游戏得分：%d", score);
-}
 //////////////////////////////////////
 // 4-partial-renewal
 /////////////////////////////////////
 void setPos(int X, int Y)
 {
     COORD pos;
-    pos.X = X + DETA_X;
-    pos.Y = Y + DETA_Y;
+    if (isFullWidth)
+    {
+        pos.X = 2 * X + 2;
+    }
+    else
+    {
+        pos.X = X + 2;
+    }
+    pos.Y = Y + 2;
+
+    // pos.X=X+DETA_X;
+    // pos.Y=Y+DETA_Y;
     SetConsoleCursorPosition(h, pos);
 }
 void DrawMap()
@@ -303,10 +310,11 @@ void DrawMap()
     for (int i = 0; i < width + 2; i++)
     {
         SetConsoleTextAttribute(h, textColor);
-        if(isFullWidth)
-            cout<<"□";
-        else{
-            cout<<"#";
+        if (isFullWidth)
+            cout << "□";
+        else
+        {
+            cout << "#";
         }
     }
     cout << endl;
@@ -317,15 +325,31 @@ void eraseSnake()
     for (int i = 0; i < nTail; i++)
     {
         setPos(tailX[i], tailY[i]);
-        cout << "  ";
+        if (isFullWidth)
+            if (tailX[i] == width - 1)
+            {
+                cout << "  ";
+            }
+
+            else
+            {
+                cout << "  ";
+            }
+        else
+        {
+            cout << " ";
+        }
     }
 }
-
 void Prompt_info(int _x, int _y)
 {
     int initialX = 20, initialY = 0;
 
     SetConsoleTextAttribute(h, 0x0f);
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "***<<每日记单词>>***";
+    initialY++;
     setPos(_x + initialX, _y + initialY);
     cout << "游戏说明：";
     initialY++;
@@ -340,163 +364,153 @@ void Prompt_info(int _x, int _y)
     cout << "操作说明：";
     initialY++;
     setPos(_x + initialX, _y + initialY);
-    cout << "   向左移动：←A";
+    cout << "   向左移动：←A/a";
     initialY++;
     setPos(_x + initialX, _y + initialY);
-    cout << "   向右移动：→D";
+    cout << "   向右移动：→D/d";
     initialY++;
     setPos(_x + initialX, _y + initialY);
-    cout << "   向下移动：↓S";
+    cout << "   向下移动：↓S/s";
     initialY++;
     setPos(_x + initialX, _y + initialY);
-    cout << "   向上移动：↑W";
+    cout << "   向上移动：↑W/w";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   改变全角/半角模式：G/g";
     initialY++;
     setPos(_x + initialX, _y + initialY);
     cout << "   开始游戏：任意方向键";
     initialY++;
     setPos(_x + initialX, _y + initialY);
-    cout << "   退出游戏：x键退出";
+    cout << "   空格键：暂停——结束暂停";
     initialY++;
     setPos(_x + initialX, _y + initialY);
-    cout <<"难度等级为"<<(score / DIFFICULTY_FACTOR + 1)<<"级";
+    cout << "   重新开始：Y/y";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   游戏结束：X/x";
 
-}
-void gameOver_info()
-{
-    setPos(5, 8);
-    SetConsoleTextAttribute(h, 0x0c);
-    cout << "游戏结束！！";
-    setPos(3, 9);
-    cout << "Y重新开始/N退出";
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "   退出游戏： N/n键退出";
+    initialY++;
+    initialY++;
+    initialY++;
+    initialY++;
+    setPos(_x + initialX, _y + initialY);
+    cout << "  已完成：";
+    for(int i=1;i<=nowword-1;i++)
+    {
+        initialY++;
+        setPos(_x + initialX, _y + initialY);
+        cout << i<<" :"<<word[i];
+    }
 }
 void DrawLocally()
 {
-    if(isFullWidth==false&& change==0)
-        {
-            DrawMap();
-            Prompt_info(40, 1);
-            change=1;
-        }
-        if(isFullWidth==true&& change==1)
-        {
-            DrawMap();
-            Prompt_info(40, 1);
-            change=0;
-        }
-    if (!fruitFlash)
+    if (isFullWidth == false && change == 0)
     {
-        setPos(fruitX, fruitY);
-        SetConsoleTextAttribute(h, 0x04);
-        if(isFullWidth)
-            cout<<"☆";
-        else{
-            cout<<"F";
-        }
-        fruitFlash = true;
+        DrawMap();
+        Prompt_info(3, 1);
+        change = 1;
     }
-    else
+    if (isFullWidth == true && change == 1)
     {
-        setPos(fruitX, fruitY);
-        SetConsoleTextAttribute(h, 0x04);
-       if(isFullWidth)
-            cout<<"    ";
-        else{
-            cout<<" ";
-        }
-        fruitFlash = false;
+        DrawMap();
+        Prompt_info(3, 1);
+        change = 0;
     }
-
+    // if (!fruitFlash)
+    // {
+    //     setPos(fruitX, fruitY);
+    //     SetConsoleTextAttribute(h, 0x04);
+    //     if (isFullWidth)
+    //         cout << "☆";
+    //     else
+    //     {
+    //         cout << "F";
+    //     }
+    //     fruitFlash = true;
+    // }
+    // else
+    // {
+    //     setPos(fruitX, fruitY);
+    //     SetConsoleTextAttribute(h, 0x04);
+    //     if (isFullWidth)
+    //         cout << "  ";
+    //     else
+    //     {
+    //         cout << " ";
+    //     }
+    //     fruitFlash = false;
+    // }
+    if(nextwordflag==1)
+    {
+        Prompt_info(3,1);
+        for (int j = 0; j < word[nowword].size(); j++)
+        {
+            while (1)
+            {
+                int x1, y1;
+                x1 = rand() % width;
+                y1 = rand() % height;
+                if (flagXY[x1][y1].flag == 0)
+                {
+                    flagXY[x1][y1].flag = 1;
+                    flagXY[x1][y1].ch=word[nowword].substr(j,1);
+                    flagXY[x1][y1].number=nowword;
+                    break;
+                }
+            }
+        }
+        nextwordflag=0;
+    }
+    
+    for(int i=0;i<width;i++)
+    {
+        for(int j=0;j<height;j++)
+        {
+            if(flagXY[i][j].flag==1 and flagXY[i][j].number==nowword)
+            {
+                setPos(i, j);
+                SetConsoleTextAttribute(h, 0x04);
+                if(isFullWidth)
+                {
+                    cout << ToFull(flagXY[i][j].ch);
+                }else{
+                    cout << flagXY[i][j].ch;
+                }
+                
+            }
+        }
+    }
     for (int i = 0; i < nTail; i++)
     {
         setPos(tailX[i], tailY[i]);
         if (i == 0)
         {
             SetConsoleTextAttribute(h, 0x09);
-            if(isFullWidth)
-            cout<<"Ｏ";
-        else{
-            cout<<"O";
-        }
+            if (isFullWidth)
+                cout << "Ｏ";
+            else
+            {
+                cout << "O";
+            }
         }
         else
         {
             SetConsoleTextAttribute(h, 0x0a);
-            if(isFullWidth)
-            cout<<"ｏ";
-        else{
-            cout<<"o";
-        }
+            if (isFullWidth)
+                cout <<ToFull(word[nowword].substr(i-1,1));
+            else
+            {
+                cout << word[nowword].substr(i-1,1);
+            }
         }
     }
     setPos(0, height + 1);
     SetConsoleTextAttribute(h, 0x06);
     cout << "游戏得分" << score;
-}
-//////////////////////////////////////////
-void Show_DoubleBuffer() //缓冲
-{
-    HANDLE hBuf;
-    WORD textColor;
-    int i, j;
-    Draw2();
-    if (BufferSwapFlag == false)
-    {
-        BufferSwapFlag = true;
-        hBuf = hOutBuf;
-    }
-    else
-    {
-        BufferSwapFlag = false;
-        hBuf = hOutPut;
-    }
-    for (i = 0; i < height + 5; i++)
-    {
-        coord.Y = i;
-        for (j = 0; j < width + 5; j++)
-        {
-            coord.X = j;
-            if (ScreenData[i][j] == 'O')
-            {
-                textColor = 0x03;
-            }
-            else if (ScreenData[i][j] == 'F')
-            {
-                textColor = 0x04;
-            }
-            else if (ScreenData[i][j] == 'o')
-            {
-                textColor = 0x0a;
-            }
-            else
-            {
-                textColor = 0x06;
-            }
-            WriteConsoleOutputAttribute(hBuf, &textColor, 1, coord, &bytes);
-        }
-        coord.X = 0;
-        WriteConsoleOutputCharacterA(hBuf, ScreenData[i], width, coord, &bytes);
-    }
-    SetConsoleActiveScreenBuffer(hBuf);
-    /////////////////////////////////////////////////////////////////////////////////////
-    //单色显示双缓冲
-    // if(BufferSwapFlag==false)
-    // {
-    //     BufferSwapFlag=true;
-    //     for(i=0;i<height+5;i++)
-    //     {
-    //         coord.Y=i;
-    //         WriteConsoleOutputCharacterA(hOutBuf,ScreenData[i],width,coord,&bytes);
-    //     }
-    //     SetConsoleActiveScreenBuffer(hOutBuf);
-    // }else{
-    //     BufferSwapFlag=false;
-    //     for(i=0;i<height+5;i++)
-    //     {
-    //         coord.Y=i;
-    //         WriteConsoleOutputCharacterA(hOutPut,ScreenData[i],width,coord,&bytes);
-    //     }
-    //     SetConsoleActiveScreenBuffer(hOutPut);
-    // }
 }
 
 void showScore(int _x, int _y)
@@ -508,26 +522,40 @@ void showScore(int _x, int _y)
     cout << score;
 }
 
+void gameOver_info()
+{
+    setPos(5, 8);
+    SetConsoleTextAttribute(h, 0x0c);
+    cout << "游戏结束！！";
+    setPos(3, 9);
+    cout << "Y重新开始/N退出";
+}
+
 void Input() //输入
 {
-    
+
     if (_kbhit())
     {
         switch (_getch())
         {
         case 'a':
+        case 'A':
             dir = LEFT;
             break;
         case 'd':
+        case 'D':
             dir = RIGHT;
             break;
         case 'w':
+        case 'W':
             dir = UP;
             break;
         case 's':
+        case 'S':
             dir = DOWN;
             break;
         case 'x':
+        case 'X':
             gameOver = true;
             break;
         case ' ':
@@ -537,16 +565,26 @@ void Input() //输入
         case 'Y':
 
             system("cls");
+            
+            nowword=1;
+            for(int i=0;i<width;i++)
+            {
+                for(int j=0;j<height;j++)
+                {
+                    flagXY[i][j].flag=0;
+                }
+            }
             Initial();
             DrawMap();
-            Prompt_info(5, 1);
+            Prompt_info(3, 1);
             break;
         case 'n':
         case 'N':
             exit(0);
             break;
-        case 13:
-            isFullWidth=!isFullWidth;
+        case 'g':
+        case 'G':
+            isFullWidth = !isFullWidth;
             break;
         case 224:
             switch (_getch())
@@ -604,16 +642,39 @@ void Logic() //逻辑
     default:
         break;
     }
-    if (x == fruitX && y == fruitY)
+    for(int i=0;i<=word[nowword].size();i++)
     {
-        fruitX = rand() % width;
-        fruitY = rand() % height;
-        nTail++;
-        score += 10;
+        if(flagXY[x][y].flag==1 && flagXY[x][y].ch==word[nowword].substr(nowwordnumber,1))
+        {
+            flagXY[x][y].flag=0;
+            nowwordnumber++;
+            nTail++;
+            score+=10;
+            if(nowwordnumber==word[nowword].size())
+            {
+                nowword++;
+                nowwordnumber=0;
+                nextwordflag=1;
+                nTail=1;
+            }
+        }
     }
+    // if (x == fruitX && y == fruitY)
+    // {
+    //     fruitX = rand() % width;
+    //     fruitY = rand() % height;
+    //     nTail++;
+    //     score += 10;
+    // }
 
-    if(x>=width) x=0;else if(x<0) x=width-1;
-    if(y>=height) y=0;else if(y<0) y=height-1;
+    if (x >= width)
+        x = 0;
+    else if (x < 0)
+        x = width - 1;
+    if (y >= height)
+        y = 0;
+    else if (y < 0)
+        y = height - 1;
     //判断出界，游戏结束
     // if (x > width - 2 || x <= 0 || y > height - 1 || y < 0)
     // {
@@ -645,6 +706,19 @@ void Logic() //逻辑
 }
 int main()
 {
+    //////////////////////////////////////////////
+
+    //文件名
+    char *fn = "a.txt";
+    string str;
+    readFileIntoString(fn, word);
+    for (int i = 1; i <= 5; i++)
+    {
+        cout << i << " " << word[i] << endl;
+    }
+
+    system("pause");
+
     //////////////////////////////////////////////////
     // 5-1-gameloopcontrol
     ////////////////////////////////////////////////
@@ -653,7 +727,7 @@ int main()
     {
         Initial();
         DrawMap();
-        Prompt_info(40, 1);
+        Prompt_info(3, 1);
         while (!gameOver)
         {
             // Draw();
@@ -664,20 +738,20 @@ int main()
             {
                 Logic();
             }
-            //Logic();
-            // if(GetAsyncKeyState(VK_SPACE)&&pauseKey==0)
-            // {
-            //     system("pause");
-            //     pauseKey++;
-            // }else if(pauseKey!=0){
-            //     pauseKey=0;
-            // }
-            if(score % DIFFICULTY_FACTOR==0)
+            // Logic();
+            //  if(GetAsyncKeyState(VK_SPACE)&&pauseKey==0)
+            //  {
+            //      system("pause");
+            //      pauseKey++;
+            //  }else if(pauseKey!=0){
+            //      pauseKey=0;
+            //  }
+            if (score % DIFFICULTY_FACTOR == 0)
             {
-                Prompt_info(40, 1);
+                Prompt_info(3, 1);
             }
             DrawLocally();
-            showScore(40, 1);
+            showScore(3, 1);
             ///////////////////////////////////
             // 5-2-Gameframeratemanagement
             /////////////////////////////////////
@@ -694,7 +768,14 @@ int main()
             int sleep_Time = 200 / (score / DIFFICULTY_FACTOR + 1);
             Sleep(sleep_Time);
         }
-        nTail = 1;
+        nTail = 1;nowword=1;
+        for(int i=0;i<width;i++)
+        {
+            for(int j=0;j<height;j++)
+            {
+                flagXY[i][j].flag=0;
+            }
+        }
         gameOver_info();
         while (gameOver)
         {
@@ -706,6 +787,17 @@ int main()
                 case 'Y':
                     gameOver = false;
                     system("cls");
+                    nowword=1;
+                    for(int i=0;i<width;i++)
+                    {
+                        for(int j=0;j<height;j++)
+                        {
+                            flagXY[i][j].flag=0;
+                        }
+                    }
+                    Initial();
+                    DrawMap();
+                    Prompt_info(3, 1);
                     break;
                 case 'n':
                 case 'N':

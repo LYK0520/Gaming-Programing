@@ -12,7 +12,7 @@ int abc()
 int main()
 {
     int a=1;
-     a=abc();
+     cout<<++a+++a<<endl;;
      cout<<a<<endl;
      system("pause");
     return 0;
