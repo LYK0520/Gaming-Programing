@@ -1,5 +1,6 @@
 #include "Game.h"
 #include <iostream>
+#define KEY_DOWN(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1 : 0)
 using namespace std;
 Game::Game()
 {
@@ -14,7 +15,7 @@ Game::~Game()
 }
 void Game::NullClick(int j, int i)
 {
-    cout<<"wuyu"<<endl;
+    cout << "wuyu" << endl;
     int k, l;
     for (k = j - 1; k < j + 2; k++)
     {
@@ -24,10 +25,10 @@ void Game::NullClick(int j, int i)
             {
                 if (mGameData[k][l].isPress == false)
                 {
-                    if(mGameData[k][l].mState!=ncMINE)
+                    if (mGameData[k][l].mState != ncMINE)
                     {
                         mGameData[k][l].isPress = true;
-                        cout<<8<<endl;
+                        cout << 8 << endl;
                     }
 
                     if (mGameData[k][l].mState == ncNULL)
@@ -59,7 +60,7 @@ void Game::unCover()
 }
 void Game::isWin()
 {
-    //p215 p216
+    // p215 p216
     int i, j, c = 0;
     // if(mFlagCalc==mMineNum)
     // {
@@ -107,24 +108,24 @@ void Game::isWin()
     if (c == mMineNum)
     {
         isGameBegin = false;
-        mFlagCalc=mMineNum;
+        mFlagCalc = mMineNum;
         undownOpen();
         isGameOverState = ncWIN;
     }
 }
 void Game::undownOpen()
 {
-    int i,j;
-    for(j=0;j<stageHeight;j++)
+    int i, j;
+    for (j = 0; j < stageHeight; j++)
     {
-        for(i=0;i<stageWidth;i++)
+        for (i = 0; i < stageWidth; i++)
         {
-            if(mGameData[j][i].isPress==false)
+            if (mGameData[j][i].isPress == false)
             {
-                mGameData[j][i].isPress=true;
-                if(mGameData[j][i].mState=ncMINE)
+                mGameData[j][i].isPress = true;
+                if (mGameData[j][i].mState = ncMINE)
                 {
-                    mGameData[j][i].mState=ncFLAG;
+                    mGameData[j][i].mState = ncFLAG;
                 }
             }
         }
@@ -171,14 +172,16 @@ void Game::LoadMediaData()
 
     sBackground.setTexture(tBackground);
     sTiles.setTexture(tTiles);
-    if(gamelvl==1)
+    if (gamelvl == 1)
     {
-        float scale=1.0*LVL2_WIDTH/LVL1_WIDTH;
-        sTiles.setScale(scale,scale);
-        gridSize=GRIDSIZE*scale;
-    }else{
-        gridSize=GRIDSIZE;
-         sTiles.setScale(1.0,1.0);
+        float scale = 1.0 * LVL2_WIDTH / LVL1_WIDTH;
+        sTiles.setScale(scale, scale);
+        gridSize = GRIDSIZE * scale;
+    }
+    else
+    {
+        gridSize = GRIDSIZE;
+        sTiles.setScale(1.0, 1.0);
     }
     sButtons.setTexture(tButtons);
     sNum.setTexture(tNum);
@@ -201,7 +204,7 @@ void Game::IniData()
 void Game::Initial()
 {
     window.setFramerateLimit(10);
-    
+
     gridSize = GRIDSIZE; //点击的位置的块的大小
 
     switch (gamelvl)
@@ -239,6 +242,7 @@ void Game::MineSet(int Py, int Px)
 {
     int mCount, i, j, k, l;
     mCount = 0;
+    cout << "nanshou3" << endl;
     srand(time(NULL));
     do
     {
@@ -269,7 +273,7 @@ void Game::MineSet(int Py, int Px)
             mCount++;
         }
     } while (mCount != mMineNum);
-
+    cout << "nanshou4" << endl;
     for (i = 0; i < stageHeight; i++)
     {
         for (j = 0; j < stageWidth; j++)
@@ -324,9 +328,13 @@ void Game::MineSet(int Py, int Px)
         }
     }
 }
+
 void Game::Input()
 {
     Event event;
+    // sf::RectangleShape mousePoint1;
+    mousePoint1.setSize(sf::Vector2f(5, 5));
+    mousePoint1.setFillColor(sf::Color::Red);
     while (window.pollEvent(event))
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -348,9 +356,10 @@ void Game::Input()
         //左键点击响应
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
         {
-            //mouse_RL_ClkReady=0;
-            //cout<<1<<endl;
-           P2 = Mouse::getPosition(window);
+            // mouse_RL_ClkReady=0;
+            // cout<<1<<endl;
+
+            P2 = (Vector2i)window.mapPixelToCoords(Mouse::getPosition(window));
             if (isGameOverState == ncNo)
             {
                 // if(mouseClickTimer.getElapsedTime().asMilliseconds()>500)
@@ -382,7 +391,7 @@ void Game::Input()
                     mouse_RL_ClkReady++;
                     if (mouse_RL_ClkReady == 2)
                     {
-                        RL_ButtonDown(Mouse::getPosition(window));
+                        RL_ButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
                     }
                 }
             }
@@ -399,11 +408,11 @@ void Game::Input()
 
                 if (mouse_RL_ClkReady == 2)
                 {
-                    RL_ButtonDown(Mouse::getPosition(window));
+                    RL_ButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
                 }
                 else
                 {
-                    RButtonDown(Mouse::getPosition(window));
+                    RButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
                 }
             }
         }
@@ -455,61 +464,71 @@ void Game::Input()
         //左键释放响应
         if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
         {
-            mouse_RL_ClkReady=0;//状态清除
+            sf::Vector2i mouse = sf::Mouse::getPosition(window);
+            // Map Pixel to Coords:
+            sf::Vector2f mouse_world = window.mapPixelToCoords(mouse);
+            // Set position of the mouse to the rectangle:
+            mousePoint1.setPosition(mouse_world);
+            mouse_RL_ClkReady = 0; //状态清除
             if (isGameOverState == ncNo)
             {
                 mouseClickTimer.restart();
                 mouseAction = LButtonDownFunc;
-                mousePoint = Mouse::getPosition(window);
-                P1 = Mouse::getPosition(window);
-                if (isGameBegin == false)//设置游戏难度系数
+                mousePoint = (Vector2i)window.mapPixelToCoords(Mouse::getPosition(window));
+                float sizesuofang = (Mouse::getPosition(window).x) / mousePoint.x;
+                cout << mousePoint.x << " " << Mouse::getPosition(window).x << endl;
+                cout << " suofang" << sizesuofang << endl;
+                P1 = (Vector2i)window.mapPixelToCoords(Mouse::getPosition(window));
+                if (isGameBegin == false) //设置游戏难度系数
                 {
-                    if (ButtonRectEasy.contains(event.mouseButton.x, event.mouseButton.y))
+                    cout << event.mouseButton.x << " " << event.mouseButton.y << endl;
+                    cout << ButtonRectEasy.left << " " << ButtonRectEasy.top << " " << ButtonRectEasy.width << " " << ButtonRectEasy.height << endl;
+                    if (ButtonRectEasy.contains(mousePoint))
                     {
                         gamelvl = 1;
                     }
-                    if (ButtonRectNormal.contains(event.mouseButton.x, event.mouseButton.y))
+                    if (ButtonRectNormal.contains(mousePoint))
                     {
                         gamelvl = 2;
                     }
-                    if (ButtonRectHard.contains(event.mouseButton.x, event.mouseButton.y))
+                    if (ButtonRectHard.contains(mousePoint))
                     {
                         gamelvl = 3;
                     }
                     Initial();
                 }
-            }
-            if (ButtonRectBG.contains(event.mouseButton.x, event.mouseButton.y))//更换背景
-            {
-                imgBGNo++;
-                if (imgBGNo > 7)
+                if (ButtonRectBG.contains(mousePoint)) //更换背景
                 {
-                    imgBGNo = 1;
+                    imgBGNo++;
+                    if (imgBGNo > 7)
+                    {
+                        imgBGNo = 1;
+                    }
+                    LoadMediaData();
                 }
-                LoadMediaData();
-            }
-            if (ButtonRectSkin.contains(event.mouseButton.x, event.mouseButton.y))//更换皮肤
-            {
-                imgSkinNo++;
-                if (imgSkinNo > 6)
+                if (ButtonRectSkin.contains(mousePoint)) //更换皮肤
                 {
-                    imgSkinNo = 1;
+                    imgSkinNo++;
+                    if (imgSkinNo > 6)
+                    {
+                        imgSkinNo = 1;
+                    }
+                    LoadMediaData();
                 }
-                LoadMediaData();
-            }
-            if (ButtonRectRestart.contains(event.mouseButton.x, event.mouseButton.y))//重来
-            {
-                Initial();
-            }
-            if (ButtonRectQuit.contains(event.mouseButton.x, event.mouseButton.y))//离开
-            {
-                window.close();
-                gameQuit = true;
+                if (ButtonRectRestart.contains(mousePoint)) //重来
+                {
+                    Initial();
+                }
+                if (ButtonRectQuit.contains(mousePoint)) //离开
+                {
+                    window.close();
+                    gameQuit = true;
+                }
             }
         }
         if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Right)
         {
-            mouse_RL_ClkReady=0;
+            mouse_RL_ClkReady = 0;
         }
     }
 }
@@ -521,31 +540,31 @@ void Game::RButtonDown(Vector2i mPoint)
 
     if (i >= 0 && i < stageWidth && j >= 0 && j < stageHeight)
     {
-        if(isGameBegin==false)//重新开始
+        if (isGameBegin == false) //重新开始
         {
-            isGameBegin=true;
+            isGameBegin = true;
             gameClock.restart();
         }
-        if (mGameData[j][i].isPress == false)//如果是未揭开状态，设立flag并且备份
+        if (mGameData[j][i].isPress == false) //如果是未揭开状态，设立flag并且备份
         {
             mGameData[j][i].isPress = true;
             mGameData[j][i].mStateBackUp = mGameData[j][i].mState;
             mGameData[j][i].mState = ncFLAG;
-            cout<<4<<endl;
+            cout << 4 << endl;
             mFlagCalc++;
         }
         else
         {
-            cout<<i<<" "<<j<<endl;
-            cout<<5<<endl;
-            if (mGameData[j][i].mState == ncFLAG)//flag变成问号
+            cout << i << " " << j << endl;
+            cout << 5 << endl;
+            if (mGameData[j][i].mState == ncFLAG) // flag变成问号
             {
                 mGameData[j][i].isPress = true;
                 mGameData[j][i].mState = ncQ;
                 mFlagCalc--;
-                cout<<6<<endl;
+                cout << 6 << endl;
             }
-            else if (mGameData[j][i].mState == ncQ)//问号变回未揭开状态
+            else if (mGameData[j][i].mState == ncQ) //问号变回未揭开状态
             {
                 mGameData[j][i].isPress = false;
                 mGameData[j][i].mState = mGameData[j][i].mStateBackUp;
@@ -556,9 +575,18 @@ void Game::RButtonDown(Vector2i mPoint)
 void Game::LButtonDown(Vector2i mPoint)
 {
     int i, j;
-    i = (mPoint.x - mCornPoint.x) / gridSize;
-    j = (mPoint.y - mCornPoint.y) / gridSize;
-
+    if(mPoint.x>=stageTopLeft.x && mPoint.y>=stageTopLeft.y && mPoint.x<=stageTopRight.x && mPoint.y>=stageTopRight.y && mPoint.x>=stageBottomLeft.x && mPoint.y<=stageBottomLeft.y && mPoint.x<=stageBottomRight.x && mPoint.y<=stageBottomRight.y)
+    
+    {
+        i = (mPoint.x - mCornPoint.x) / gridSize;
+        j = (mPoint.y - mCornPoint.y) / gridSize;
+    }else{
+        i=-1;
+        j=-1;
+    }
+    cout << i << " " << j << endl;
+    cout << "nanshou123" << endl;
+    cout << i << " " << j << endl;
     if (i >= 0 && i < stageWidth && j >= 0 && j < stageHeight)
     {
         //可能出现点击重来之后无法点击的情况
@@ -572,36 +600,38 @@ void Game::LButtonDown(Vector2i mPoint)
         //     isMineSetBegin=true;
         //     MineSet(j,i);
         // }
-        if (isGameBegin == false)
+        cout << "nanshou1" << endl;
+        if (isGameBegin == false && isGameOverState == ncNo)
         {
             isGameBegin = true;
             gameClock.restart();
             MineSet(j, i);
         }
-        cout<<"test1"<<endl;
+        cout << "test1" << endl;
         if (mGameData[j][i].mState != ncFLAG)
         {
             if (mGameData[j][i].isPress == false)
             {
-                cout<<"test4"<<endl;
+                cout << "test4" << endl;
                 mGameData[j][i].isPress = true;
                 if (mGameData[j][i].mState == ncMINE)
                 {
-                    cout<<"test2"<<endl;
+                    cout << "test2" << endl;
                     isGameBegin = false;
                     isGameOverState = ncLOSE;
                     mGameData[j][i].mState = ncBOMBING;
                     unCover();
                 }
-                cout<<"test5"<<endl<<endl;
-                cout<<mGameData[j][i].mState<<endl;
-                if (mGameData[j][i].mState !=ncMINE)
+                cout << "test5" << endl
+                     << endl;
+                cout << mGameData[j][i].mState << endl;
+                if (mGameData[j][i].mState != ncMINE)
                 {
-                    cout<<"test"<<endl;
-                    cout<<"test7"<<endl;
+                    cout << "test" << endl;
+                    cout << "test7" << endl;
                     NullClick(j, i);
                 }
-                cout<<"test6"<<endl;
+                cout << "test6" << endl;
             }
         }
     }
@@ -624,7 +654,7 @@ void Game::LButtonDblClk(Vector2i mpoint)
                     {
                         if (k >= 0 && k < stageHeight && l >= 0 && l < stageWidth)
                         {
-                            if (mGameData[k][l].mState == ncFLAG)//如果是旗子
+                            if (mGameData[k][l].mState == ncFLAG) //如果是旗子
                             {
                                 if (mGameData[k][l].mStateBackUp != ncMINE)
                                 {
@@ -640,15 +670,16 @@ void Game::LButtonDblClk(Vector2i mpoint)
                                     mGameData[k][l].isPress = true;
                                     if (mGameData[k][l].mState == ncMINE)
                                     {
-                                        cout<<123123<<endl;
+                                        cout << 123123 << endl;
                                         isGameOverState = ncLOSE;
                                         isGameBegin = false;
                                         mGameData[k][l].mState = ncBOMBING;
+                                        cout << 11111 << endl;
                                         unCover();
                                     }
                                     if (mGameData[k][l].mState == ncNULL)
                                     {
-                                        cout<<10<<endl;
+                                        cout << 10 << endl;
                                         NullClick(k, l);
                                     }
                                 }
@@ -662,111 +693,119 @@ void Game::LButtonDblClk(Vector2i mpoint)
 }
 void Game::RL_ClkJudge()
 {
-    int i,j,k,l,mineNum=0,flagNum=0;
-    i=(RL_Point.x-mCornPoint.x)/gridSize;
-    j=(RL_Point.y-mCornPoint.y)/gridSize;
-    if(i>=0&& i<stageWidth && j>=0 && j<stageHeight)
+    int i, j, k, l, mineNum = 0, flagNum = 0;
+    i = (RL_Point.x - mCornPoint.x) / gridSize;
+    j = (RL_Point.y - mCornPoint.y) / gridSize;
+    if (i >= 0 && i < stageWidth && j >= 0 && j < stageHeight)
     {
-        if(mGameData[j][i].isPress==true)
+        if (mGameData[j][i].isPress == true)
         {
-            if(mGameData[j][i].mState!=ncFLAG)
+            if (mGameData[j][i].mState != ncFLAG)
             {
-                for(k=j-1;k<j+2;k++)
+                for (k = j - 1; k < j + 2; k++)
                 {
-                    for(l=i-1;l<i+2;l++)
+                    for (l = i - 1; l < i + 2; l++)
                     {
-                        if(k>=0&& k<stageHeight&& l>=0&& l<stageWidth)
+                        if (k >= 0 && k < stageHeight && l >= 0 && l < stageWidth)
                         {
-                            if(mGameData[k][l].mState==ncFLAG)
+                            if (mGameData[k][l].mState == ncFLAG)
                             {
                                 flagNum++;
                             }
-                            if(mGameData[k][l].mState==ncX)
+                            if (mGameData[k][l].mState == ncX)
                             {
-                                mGameData[k][l].isPress=false;
-                                mGameData[k][l].mState=mGameData[k][l].mStateBackUp;
+                                cout << "ncX1" << endl;
+                                mGameData[k][l].isPress = false;
+                                mGameData[k][l].mState = mGameData[k][l].mStateBackUp;
                             }
                         }
                     }
                 }
             }
         }
-        if(mGameData[j][i].mState==flagNum+2)
+        if (mGameData[j][i].mState == flagNum + 2)
         {
             LButtonDblClk(RL_Point);
         }
     }
-    RL_ClkJudge_flag=false;
+    RL_ClkJudge_flag = false;
 }
 void Game::RL_ButtonDown(Vector2i mPoint)
 {
-    int i,j,k,l;
-    i=(mPoint.x-mCornPoint.x)/gridSize;
-    j=(mPoint.y-mCornPoint.y)/gridSize;
+    int i, j, k, l;
+    i = (mPoint.x - mCornPoint.x) / gridSize;
+    j = (mPoint.y - mCornPoint.y) / gridSize;
 
-    if(i>=0&& i<stageWidth&& j>=0 && j<stageHeight)
+    if (i >= 0 && i < stageWidth && j >= 0 && j < stageHeight)
     {
-        if(mGameData[j][i].isPress==true)
+        if (mGameData[j][i].isPress == true)
         {
-            if(mGameData[j][i].mState!=ncFLAG && mGameData[j][i].mState!=ncQ)
+            if (mGameData[j][i].mState != ncFLAG && mGameData[j][i].mState != ncQ)
             {
-                for(k=j-1;k<j+2;k++)
+                for (k = j - 1; k < j + 2; k++)
                 {
-                    for(l=i-1;l<i+2;l++)
+                    for (l = i - 1; l < i + 2; l++)
                     {
-                        if(k>=0 && k<stageHeight&& l>=0 && l<stageWidth)
+                        if (k >= 0 && k < stageHeight && l >= 0 && l < stageWidth)
                         {
-                            if(mGameData[k][l].isPress==false)
+                            if (mGameData[k][l].isPress == false)
                             {
-                                mGameData[k][l].isPress=true;
-                                mGameData[k][l].mStateBackUp=mGameData[k][l].mState;
-                                mGameData[k][l].mState=ncX;
+                                mGameData[k][l].isPress = true;
+                                mGameData[k][l].mStateBackUp = mGameData[k][l].mState;
+                                mGameData[k][l].mState = ncX;
+                                cout << "ncX3" << endl;
                             }
                         }
                     }
                 }
-            }else{
-                for(k=j-1;k<j+2;k++)
+            }
+            else
+            {
+                for (k = j - 1; k < j + 2; k++)
                 {
-                    for(l=i-1;l<i+2;l++)
+                    for (l = i - 1; l < i + 2; l++)
                     {
-                        if(k>=0 && k<stageHeight&& l>=0 && l<stageWidth)
+                        if (k >= 0 && k < stageHeight && l >= 0 && l < stageWidth)
                         {
-                            if(mGameData[k][l].isPress==false)
+                            if (mGameData[k][l].isPress == false)
                             {
-                                mGameData[k][l].isPress=true;
-                                mGameData[k][l].mStateBackUp=mGameData[k][l].mState;
-                                mGameData[k][l].mState=ncX;
+                                mGameData[k][l].isPress = true;
+                                mGameData[k][l].mStateBackUp = mGameData[k][l].mState;
+                                mGameData[k][l].mState = ncX;
+                                cout << "ncX2" << endl;
                             }
                         }
                     }
                 }
-                mGameData[j][i].isPress=false;
+                mGameData[j][i].isPress = false;
             }
         }
     }
-    RL_Point=mPoint;
-    RL_ClkJudge_flag=true;
+    RL_Point = mPoint;
+    RL_ClkJudge_flag = true;
 }
 void Game::Logic()
 {
-    if(mouse_RL_ClkReady==0 && RL_ClkJudge_flag==true)
+    if (mouse_RL_ClkReady == 0 && RL_ClkJudge_flag == true)
     {
         RL_ClkJudge();
     }
     switch (mouseAction)
     {
     case RButtonDownFunc:
-        cout<<"this is RButtonDownFunc"<<endl;
+        cout << "this is RButtonDownFunc" << endl;
         RButtonDown(mousePoint);
+        mouseAction = STOP;
         break;
     case LButtonDownFunc:
-        cout<<"this is LButtonDownFunc"<<endl;
+        cout << "this is LButtonDownFunc" << endl;
         LButtonDown(mousePoint);
+        mouseAction = STOP;
         break;
     case LButtonDblClkFunc:
-        cout<<"this is LButtonDblClkFunc"<<endl;
+        cout << "this is LButtonDblClkFunc" << endl;
         LButtonDblClk(mousePoint);
+        mouseAction = STOP;
         break;
     }
     isWin();
@@ -775,6 +814,13 @@ void Game::DrawGrid()
 {
     mCornPoint.x = (Window_width - stageWidth * gridSize) / 2;
     mCornPoint.y = (Window_height - stageHeight * gridSize) / 2;
+    stageTopLeft=mCornPoint;
+    stageTopRight.x=stageTopLeft.x+stageWidth*gridSize;
+    stageTopRight.y=stageTopLeft.y;
+    stageBottomLeft.x=stageTopLeft.x;
+    stageBottomLeft.y=stageTopLeft.y+stageHeight*gridSize;
+    stageBottomRight.x=stageTopRight.x;
+    stageBottomRight.y=stageBottomLeft.y;
     for (int j = 0; j < stageHeight; j++)
     {
         for (int i = 0; i < stageWidth; i++)
@@ -966,7 +1012,7 @@ void Game::DrawGameEnd()
     LeftCorner.y = (Window_height - ButtonHeight) / 2;
 
     sGameOver.setPosition(LeftCorner.x, LeftCorner.y);
-
+    cout << "isGameOverState" << isGameOverState << endl;
     if (isGameOverState == ncWIN)
     {
         sGameOver.setTextureRect(IntRect(0 * ButtonWidth, 0, ButtonWidth, ButtonHeight));
@@ -988,27 +1034,37 @@ void Game::Draw()
     DrawButton();
     DrawTimer();
     DrawScore();
-    if (isGameOverState)
+    if (isGameOverState == ncLOSE || isGameOverState == ncWIN)
     {
         DrawGameEnd();
     }
+    window.draw(mousePoint1);
     window.display();
 }
 void Game::Run()
 {
     do
     {
-        cout<<"Run"<<endl;
+        cout << "Run" << endl;
+        // Input();
         Initial();
-        Input();
-        while (window.isOpen() && gameOver == false)
+
+        while (window.isOpen() && isGameOverState == ncNo) //命名错误 先前为 gameOver==false
         {
             Input();
 
             Logic();
-
+            cout << "this is Draw" << endl;
             Draw();
         }
-        cout<<"Game Over"<<endl;
+        cout << "Game Over" << endl;
+        while (1)
+        {
+            if (KEY_DOWN(MOUSE_MOVED) || KEY_DOWN(MOUSE_EVENT) || KEY_DOWN(MOUSE_WHEELED))
+            {
+                break;
+            }
+        }
+        // sleep(seconds(2));
     } while (window.isOpen() && !gameQuit);
 }

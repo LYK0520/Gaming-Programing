@@ -538,23 +538,23 @@ void DrawStep()
     spSnackHead.setPosition((tailX[0] + stepX) * GRIDSIZE + detaX, (tailY[0] + stepY) * GRIDSIZE + detaY);
     spSnackHead.setRotation(headRotation);
     window.draw(spSnackHead);
-    for (int i = 1; i < nTail; i++)
-    {
-        if (tailY[i] == tailY[i - 1] && tailX[i] != tailX[i - 1])
-        {
+    // for (int i = 1; i < nTail; i++)
+    // {
+    //     if (tailY[i] == tailY[i - 1] && tailX[i] != tailX[i - 1])
+    //     {
 
-            spSnackBody.setPosition((tailX[i] + (tailX[i - 1] - tailX[i]) * stepLength) * GRIDSIZE + detaX, tailY[i] * GRIDSIZE + detaY);
-        }
-        if (tailY[i] != tailY[i - 1] && tailX[i] == tailX[i - 1])
-        {
-            spSnackBody.setPosition(tailX[i] * GRIDSIZE + detaX, (tailY[i] + (tailY[i - 1] - tailY[i]) * stepLength) * GRIDSIZE + detaY);
-        }
-        if (tailX[i] != tailX[i - 1] && tailY[i] != tailY[i - 1])
-        {
-            spSnackBody.setPosition((tailX[i] + (tailX[i - 1] - tailX[i]) * stepLength) * GRIDSIZE + detaX, (tailY[i] + (tailY[i - 1] - tailY[i]) * stepLength) * GRIDSIZE + detaY);
-        }
-        window.draw(spSnackBody);
-    }
+    //         spSnackBody.setPosition((tailX[i] + (tailX[i - 1] - tailX[i]) * stepLength) * GRIDSIZE + detaX, tailY[i] * GRIDSIZE + detaY);
+    //     }
+    //     if (tailY[i] != tailY[i - 1] && tailX[i] == tailX[i - 1])
+    //     {
+    //         spSnackBody.setPosition(tailX[i] * GRIDSIZE + detaX, (tailY[i] + (tailY[i - 1] - tailY[i]) * stepLength) * GRIDSIZE + detaY);
+    //     }
+    //     if (tailX[i] != tailX[i - 1] && tailY[i] != tailY[i - 1])
+    //     {
+    //         spSnackBody.setPosition((tailX[i] + (tailX[i - 1] - tailX[i]) * stepLength) * GRIDSIZE + detaX, (tailY[i] + (tailY[i - 1] - tailY[i]) * stepLength) * GRIDSIZE + detaY);
+    //     }
+    //     window.draw(spSnackBody);
+    // }
     for (int i = 1; i < nTail; i++)
     {
         if (tailY[i] == tailY[i - 1] && tailX[i] != tailX[i - 1] && abs(tailX[i] - tailX[i - 1]) <= 2)
@@ -627,7 +627,7 @@ int main()
             {
             case 1:
                 delay++;
-                if (delay % 10 == 0 || 1)
+                if (delay % 10 == 0)
                 {
                     Logic();
                 }

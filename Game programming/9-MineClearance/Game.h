@@ -49,6 +49,7 @@ typedef enum MOUSEFUNCTION
     RButtonDownFunc,
     LButtonDownFunc,
     LButtonDblClkFunc,
+    STOP
 };
 class LEI
 {
@@ -77,6 +78,7 @@ public:
     int mouseAction;
     bool isMineSetBegin;
     Vector2i mousePoint,P1,P2;
+    sf::RectangleShape mousePoint1;
     Texture tBackground, tTiles, tButtons, tNum, tTimer, tCounter, tGameOver; //创建纹理对象
     Sprite sBackground, sTiles, sButtons, sNum, sTimer, sCounter, sGameOver;  //创建精灵对象
     IntRect ButtonRectEasy, ButtonRectNormal, ButtonRectHard, ButtonRectBG, ButtonRectSkin, ButtonRectRestart, ButtonRectQuit;
@@ -86,6 +88,7 @@ public:
     Music bkMusic;
     bool RL_ClkJudge_flag=false;
     int mouse_RL_ClkReady=0;
+    Vector2i stageTopLeft,stageTopRight,stageBottomLeft,stageBottomRight;
     Vector2i RL_Point;
     // SFML的Clock类在对象实例化的时候即开始计时
     Clock gameClock, mouseClickTimer;
