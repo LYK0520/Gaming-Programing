@@ -2,14 +2,19 @@
 #include"8-4-Animation.cpp"
 #include"8-4-AnimatedSprite.cpp"
 #include<bits/stdc++.h>
+#include <windows.h>
+#include <conio.h>
 using namespace std;
+const int SKIP_TICKS=1000/6;
+DWORD next_Game_Tick=GetTickCount();
+int sleep_Time=0;
 int main(int argc,char* argv[])
 {
     //创建窗口
     sf::RenderWindow window(sf::VideoMode(600,800),"Example animation");
     //加载纹理图像
     sf::Texture textures;
-    textures.loadFromFile("../data/images/1.png");
+    textures.loadFromFile("../data/images/eye.png");
     //创建两个动画序列容器
     Animation walkLeft(&textures);
     walkLeft.addFramesLine(4,2,0);
@@ -55,7 +60,14 @@ int main(int argc,char* argv[])
             sprite.move(0,speed*delta.asSeconds());
         }
         window.clear();
+        sprite.setFrameTime(sf::seconds(1/6.f));
         sprite.update(delta);
+        next_Game_Tick+=SKIP_TICKS;
+        sleep_Time=next_Game_Tick-GetTickCount();
+        if(sleep_Time>0)
+        {
+            Sleep(sleep_Time);
+        }
         window.draw(sprite);
         window.display();
         cout<<1<<endl;

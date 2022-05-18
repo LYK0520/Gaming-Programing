@@ -223,6 +223,26 @@ void Input()
                 GameMode = 1;
             }
         }
+        if (Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))
+        {
+            if (dir != RIGHT)
+                dir = LEFT;
+        }
+        else if (Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))
+        {
+            if (dir != LEFT)
+                dir = RIGHT;
+        }
+        else if (Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))
+        {
+            if (dir != DOWN)
+                dir = UP;
+        }
+        else if (Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))
+        {
+            if (dir != UP)
+                dir = DOWN;
+        }
     }
     // int unicode = event.text.unicode;
     // if (unicode < 128)
@@ -314,27 +334,6 @@ void Input()
     //         break;
     //     }
     // }
-
-    if (Keyboard::isKeyPressed(Keyboard::Left) || Keyboard::isKeyPressed(Keyboard::A))
-    {
-        if (dir != RIGHT)
-            dir = LEFT;
-    }
-    else if (Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::D))
-    {
-        if (dir != LEFT)
-            dir = RIGHT;
-    }
-    else if (Keyboard::isKeyPressed(Keyboard::Up) || Keyboard::isKeyPressed(Keyboard::W))
-    {
-        if (dir != DOWN)
-            dir = UP;
-    }
-    else if (Keyboard::isKeyPressed(Keyboard::Down) || Keyboard::isKeyPressed(Keyboard::S))
-    {
-        if (dir != UP)
-            dir = DOWN;
-    }
 }
 void LogicStep()
 {

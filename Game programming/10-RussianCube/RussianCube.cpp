@@ -5,7 +5,7 @@ int main()
 {
     Game tetris;
     tetris.gameRun();
-    getchar();
-    system("pause");
+    //getchar();
+    //system("pause");
     return 0;
 }

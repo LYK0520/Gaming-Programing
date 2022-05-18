@@ -1,5 +1,6 @@
 #include "Game.h"
 #include <iostream>
+#include <cstdlib>
 #define KEY_DOWN(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1 : 0)
 using namespace std;
 Game::Game()
@@ -16,24 +17,25 @@ Game::~Game()
 void Game::NullClick(int j, int i)
 {
     cout << "wuyu" << endl;
-    int k, l;
-    for (k = j - 1; k < j + 2; k++)
+    int k, l;//设置了两个变量，用于对3*3的网格进行遍历
+    for (k = j - 1; k < j + 2; k++)//k的遍历 对行进行遍历
     {
-        for (l = i - 1; l < i + 2; l++)
+        for (l = i - 1; l < i + 2; l++)//l的遍历 对列进行遍历
         {
-            if (k >= 0 && k < stageHeight && l >= 0 && l < stageWidth)
+            if (k >= 0 && k < stageHeight && l >= 0 && l < stageWidth)//判断是否超出边界
             {
-                if (mGameData[k][l].isPress == false)
+                if (mGameData[k][l].isPress == false)//判断是否被按下
                 {
-                    if (mGameData[k][l].mState != ncMINE)
-                    {
-                        mGameData[k][l].isPress = true;
-                        cout << 8 << endl;
-                    }
+                    mGameData[k][l].isPress = true;//将isPress设置为true
+                    // if (mGameData[k][l].mState != ncMINE)
+                    // {
+                    //     mGameData[k][l].isPress = true;
+                    //     cout << 8 << endl;
+                    // }
 
-                    if (mGameData[k][l].mState == ncNULL)
+                    if (mGameData[k][l].mState == ncNULL)//如果是空格
                     {
-                        NullClick(k, l);
+                        NullClick(k, l);//继续遍历
                     }
                 }
             }
@@ -145,6 +147,7 @@ void Game::LoadMediaData()
     }
     ss.str(""); //清空字符串
     ss << "data/images/Game" << imgSkinNo << ".jpg";
+    sBackground.setTexture(tBackground);
     if (!tTiles.loadFromFile(ss.str()))
     {
         cout << "Game Skin Image 没有找到" << endl;
@@ -169,8 +172,7 @@ void Game::LoadMediaData()
     {
         cout << "gameover.jpg 没有找到" << endl;
     }
-
-    sBackground.setTexture(tBackground);
+    
     sTiles.setTexture(tTiles);
     if (gamelvl == 1)
     {
@@ -253,19 +255,23 @@ void Game::MineSet(int Py, int Px)
         // {
         //     continue;
         // }
-        for (i = Py - 1; i < Py + 2; i++)
+        if(k==Py && l==Px || k==Py-1 && l==Px || k==Py+1 && l==Px || k==Py && l==Px-1 || k==Py && l==Px+1 || k==Py-1 && l==Px-1 || k==Py-1 && l==Px+1 || k==Py+1 && l==Px-1 || k==Py+1 && l==Px+1)
         {
-            for (j = Px - 1; j < Px + 2; j++)
-            {
-                if (i >= 0 && i < stageHeight && j >= 0 && j < stageWidth)
-                {
-                    if (k == i && l == j)
-                    {
-                        flag = false;
-                    }
-                }
-            }
+            continue;
         }
+        // for (i = Py - 1; i < Py + 2; i++)
+        // {
+        //     for (j = Px - 1; j < Px + 2; j++)
+        //     {
+        //         if (i >= 0 && i < stageHeight && j >= 0 && j < stageWidth)
+        //         {
+        //             if (k == i && l == j)
+        //             {
+        //                 flag = false;
+        //             }
+        //         }
+        //     }
+        // }
         if (mGameData[k][l].mState == ncUNDOWN)
         {
             mGameData[k][l].mState = ncMINE;
@@ -358,7 +364,6 @@ void Game::Input()
         {
             // mouse_RL_ClkReady=0;
             // cout<<1<<endl;
-
             P2 = (Vector2i)window.mapPixelToCoords(Mouse::getPosition(window));
             if (isGameOverState == ncNo)
             {
@@ -366,7 +371,6 @@ void Game::Input()
                 // {
                 //     mouseClickTimer.restart();
                 //     P2=Mouse::getPosition(window);
-
                 //     if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
                 //     {
                 //         RL_ButtonDown(P2);
@@ -379,7 +383,8 @@ void Game::Input()
                 //     }
                 // }
                 // mouse_RL_ClkReady++;
-                if (mouseClickTimer.getElapsedTime().asMilliseconds() < 500 && P2.x - P1.x < gridSize / 4 && P2.y - P1.y < gridSize / 4 && mouseDlbClkReady)
+                if (mouseClickTimer.getElapsedTime().asMilliseconds() < 500 && P2.x - P1.x < gridSize / 4 && P2.y - P1.y < gridSize / 4 
+                && mouseDlbClkReady)
                 {
                     LButtonDblClk(P2);
                     mouseDlbClkReady = false;
@@ -416,20 +421,21 @@ void Game::Input()
                 }
             }
         }
-        //右键点击响应
-        ///////////////////////////////////////////////////////////////////////////////////////////////
+        //左键点击响应（区别单击和双击操作）
+        /////////////////////////////////////////////////////////////////////////////////////////////
         // if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
         // {
         //     if (isGameOverState == ncNo)
         //     {
-        //         if (mouseClickTimer.getElapsedTime().asMilliseconds() > 300)
+        //         if (mouseClickTimer.getElapsedTime().asMilliseconds() < 500 
+        //         && P2.x - P1.x < gridSize / 4 && P2.y - P1.y < gridSize / 4 && mouseDlbClkReady)
         //         {
-        //             LButtonDown(Mouse::getPosition(window));
+        //             LButtonDblClk(Mouse::getPosition(window));
         //         }
         //         else
         //         {
-        //              cout<<12<<endl;
-        //             LButtonDblClk(Mouse::getPosition(window));
+        //              //cout<<12<<endl;
+        //             LButtonDown(Mouse::getPosition(window));
         //         }
         //     }
         // }
@@ -543,6 +549,7 @@ void Game::RButtonDown(Vector2i mPoint)
         if (isGameBegin == false) //重新开始
         {
             isGameBegin = true;
+            MineSet(j, i);
             gameClock.restart();
         }
         if (mGameData[j][i].isPress == false) //如果是未揭开状态，设立flag并且备份
@@ -575,14 +582,16 @@ void Game::RButtonDown(Vector2i mPoint)
 void Game::LButtonDown(Vector2i mPoint)
 {
     int i, j;
-    if(mPoint.x>=stageTopLeft.x && mPoint.y>=stageTopLeft.y && mPoint.x<=stageTopRight.x && mPoint.y>=stageTopRight.y && mPoint.x>=stageBottomLeft.x && mPoint.y<=stageBottomLeft.y && mPoint.x<=stageBottomRight.x && mPoint.y<=stageBottomRight.y)
-    
+    if (mPoint.x >= stageTopLeft.x && mPoint.y >= stageTopLeft.y && mPoint.x <= stageTopRight.x && mPoint.y >= stageTopRight.y && mPoint.x >= stageBottomLeft.x && mPoint.y <= stageBottomLeft.y && mPoint.x <= stageBottomRight.x && mPoint.y <= stageBottomRight.y)
+
     {
         i = (mPoint.x - mCornPoint.x) / gridSize;
         j = (mPoint.y - mCornPoint.y) / gridSize;
-    }else{
-        i=-1;
-        j=-1;
+    }
+    else
+    {
+        i = -1;
+        j = -1;
     }
     cout << i << " " << j << endl;
     cout << "nanshou123" << endl;
@@ -814,13 +823,13 @@ void Game::DrawGrid()
 {
     mCornPoint.x = (Window_width - stageWidth * gridSize) / 2;
     mCornPoint.y = (Window_height - stageHeight * gridSize) / 2;
-    stageTopLeft=mCornPoint;
-    stageTopRight.x=stageTopLeft.x+stageWidth*gridSize;
-    stageTopRight.y=stageTopLeft.y;
-    stageBottomLeft.x=stageTopLeft.x;
-    stageBottomLeft.y=stageTopLeft.y+stageHeight*gridSize;
-    stageBottomRight.x=stageTopRight.x;
-    stageBottomRight.y=stageBottomLeft.y;
+    stageTopLeft = mCornPoint;
+    stageTopRight.x = stageTopLeft.x + stageWidth * gridSize;
+    stageTopRight.y = stageTopLeft.y;
+    stageBottomLeft.x = stageTopLeft.x;
+    stageBottomLeft.y = stageTopLeft.y + stageHeight * gridSize;
+    stageBottomRight.x = stageTopRight.x;
+    stageBottomRight.y = stageBottomLeft.y;
     for (int j = 0; j < stageHeight; j++)
     {
         for (int i = 0; i < stageWidth; i++)
@@ -976,14 +985,12 @@ void Game::DrawTimer()
     int NumSize = sNum.getLocalBounds().height;
     LeftCorner.x = LeftCorner.x + sTimer.getLocalBounds().width - NumSize * 1.5;
     LeftCorner.y = LeftCorner.y + sTimer.getLocalBounds().height * 0.5 - NumSize * 0.5;
-
     //绘制个位数的数字
     int a = mScore % 10;
     sNum.setTextureRect(IntRect(a * NumSize, 0, NumSize, NumSize));
     //在贴图上取对应数字字符的纹理贴图
     sNum.setPosition(LeftCorner.x, LeftCorner.y);
     window.draw(sNum);
-
     //绘制十位数的数字
     mScore = mScore / 10;
     a = mScore % 10;
@@ -992,9 +999,7 @@ void Game::DrawTimer()
     //在贴图上取对应数字字符的纹理贴图
     sNum.setPosition(LeftCorner.x, LeftCorner.y);
     window.draw(sNum);
-
     //绘制百位数的数字
-
     mScore = mScore / 10;
     a = mScore % 10;
     LeftCorner.x = LeftCorner.x - NumSize;

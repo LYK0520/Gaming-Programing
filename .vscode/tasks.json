@@ -12,6 +12,7 @@
                 "-lsfml-system",
                 "-lsfml-window",
                 "-lsfml-audio",
+                "-lsfml-network",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
