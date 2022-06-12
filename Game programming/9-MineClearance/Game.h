@@ -49,6 +49,7 @@ typedef enum MOUSEFUNCTION
     RButtonDownFunc,
     LButtonDownFunc,
     LButtonDblClkFunc,
+    LRButtonDownFunc,
     STOP
 };
 class LEI
@@ -77,7 +78,7 @@ public:
     int imgBGNo=1, imgSkinNo=1;
     int mouseAction;
     bool isMineSetBegin;
-    Vector2i mousePoint,P1,P2;
+    Vector2i mousePoint,P1,P2,mousePoint_current;
     sf::RectangleShape mousePoint1;
     Texture tBackground, tTiles, tButtons, tNum, tTimer, tCounter, tGameOver; //创建纹理对象
     Sprite sBackground, sTiles, sButtons, sNum, sTimer, sCounter, sGameOver;  //创建精灵对象

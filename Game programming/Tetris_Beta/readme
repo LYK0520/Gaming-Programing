@@ -1,0 +1,19 @@
+!important
+中文字符采用 UTF-8 编码，也许需要手动修改。
+
+版本特性
+
+- isWin() 判定条件的更改
+
+  <img src="C:\Users\hxx\AppData\Roaming\Typora\typora-user-images\image-20220604133137291.png" alt="image-20220604133137291" style="zoom:50%;" />
+
+- 新的方块儿生成位置的更改
+
+  自顶向下
+
+  <img src="C:\Users\hxx\AppData\Roaming\Typora\typora-user-images\image-20220604133224081.png" alt="image-20220604133224081" style="zoom:33%;" />
+
+
+
+可直接打开 RussianCube.exe 预览效果。
+如若需要重新编译，非常抱歉ToT。

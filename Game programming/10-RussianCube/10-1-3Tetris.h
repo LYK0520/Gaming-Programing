@@ -8,15 +8,15 @@
 #define STAGE_WIDTH 10
 #define STAGE_HEIGHT 20
 #define P1_STAGE_CORNER_X 156
-#define P1_STAGE_CORNER_Y 174
+#define P1_STAGE_CORNER_Y 154
 #define P2_STAGE_CORNER_X 844
-#define P2_STAGE_CORNER_Y 174
+#define P2_STAGE_CORNER_Y 154
 #define P1_NEXT_CORNER_X 587
-#define P1_NEXT_CORNER_Y 125
+#define P1_NEXT_CORNER_Y 105
 #define P2_NEXT_CORNER_X 702
-#define P2_NEXT_CORNER_Y 125
+#define P2_NEXT_CORNER_Y 105
 #define HOLD_CORNER_X 660
-#define HOLD_CORNER_Y 275
+#define HOLD_CORNER_Y 255
 using namespace std;
 using namespace sf;
 class Tetris
@@ -85,13 +85,22 @@ public:
     void animationFunc(int i);
     void isWin();
 };
+class TetrisObject
+{
+    int colorNum, nextColorNum, tempcolorNum;
+    int currentShapeNum, nextShapeNum, tempShapeNum;
+    Vector2i currentSquare[4], nextSquare[4], tempSquare[4], shadowSquare[4];
+    static Vector2i holdSquare[4];
+    static int holdcolorNum, holdShapeNum;
+
+};
 Tetris::Tetris()
 {
     dx = 0;         // X方向偏移量
     rotate = false; //是否旋转
     colorNum = 1;   //色块的颜色
     timer = 0;
-    delay = 0.3; //下落的速度
+    delay = 10; //下落的速度
 }
 Tetris::~Tetris()
 {
@@ -124,11 +133,18 @@ void Tetris::Logic()
         if (animationFlag == false)
         {
             checkLine();
-            if (animationFlag == false)
+            isWin();
+            if(gameOver==true)
+            {
+                
+            }else{
+                if (animationFlag == false)
             {
                 newShapeFunc();
             }
-            isWin();
+            }
+            
+            
         }
         else
         {
@@ -161,7 +177,7 @@ void Tetris::traditionLogic()
         rotateFunc();
         rotate = false;
     }
-    slowLoading();
+    //slowLoading();
     yMove();
     shadow();
     if (hardDrop)
@@ -356,7 +372,7 @@ void Tetris::Initial(Texture *tex)
     hold = false; //是否有hold块图形
     colorNum = 1;
     timer = 0;
-    delay = DALAYVALUE;
+    delay = 0.5;
     holdSquareCornPoint = {HOLD_CORNER_X, HOLD_CORNER_Y};
     sTiles.setTexture(*tTiles);
     b7Int = 0;
@@ -422,7 +438,7 @@ void Tetris::Input(sf::Event event)
             }
             if (event.key.code == sf::Keyboard::S)
             {
-                delay = DALAYVALUE / 10;
+                delay = 0.1;
             }
         }
         if (event.type == Event::KeyReleased)
@@ -443,16 +459,16 @@ void Tetris::Input(sf::Event event)
             {
                 dx = 0;
             }
-            if (event.key.code == sf::Keyboard::W)
-            {
-                if (currentShapeNum != shapeO)
-                {
-                    rotate = true;
-                }
-            }
+            // if (event.key.code == sf::Keyboard::W)
+            // {
+            //     if (currentShapeNum != shapeO)
+            //     {
+            //         rotate = true;
+            //     }
+            // }
             if (event.key.code == sf::Keyboard::S)
             {
-                delay = DALAYVALUE;
+                delay = 0.5;
             }
         }
     }
@@ -479,7 +495,7 @@ void Tetris::Input(sf::Event event)
             }
             if (event.key.code == sf::Keyboard::Down)
             {
-                delay = DALAYVALUE / 10;
+                delay =0.1;
             }
         }
         if (event.type == Event::KeyReleased)
@@ -506,7 +522,7 @@ void Tetris::Input(sf::Event event)
             //   }
             if (event.key.code == sf::Keyboard::Down)
             {
-                delay = DALAYVALUE;
+                delay =0.5;
             }
         }
     }
@@ -598,6 +614,7 @@ int Tetris::Bag7()
 {
     int num;
     srand(time(NULL));
+    memset(b7array, -1, sizeof(b7array));
     num = rand() % 7;
     for (int i = 0; i < b7Int; i++)
     {
@@ -614,7 +631,7 @@ int Tetris::Bag7()
         b7Int = 0;
         for (int i = 0; i < 7; i++)
         {
-            b7array[i] = 0;
+            b7array[i] = -1;
         }
     }
     return num;
@@ -727,11 +744,11 @@ void Tetris::slowLoading()
     }
     if (!hitTest())
     {
-        delay = DALAYVALUE * 2;
+        delay = 3;
     }
     else
     {
-        delay = DALAYVALUE;
+        delay = 1;
     }
     for (int i = 0; i < 4; i++)
     {

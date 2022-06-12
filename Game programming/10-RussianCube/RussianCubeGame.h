@@ -7,27 +7,27 @@
 #include "10-1-3Tetris.h"
 using namespace sf;
 #define B_START_CORNER_X 621
-#define B_START_CORNER_Y 763
+#define B_START_CORNER_Y 743
 #define B_HOLD_CORNER_X 621
-#define B_HOLD_CORNER_Y 822
+#define B_HOLD_CORNER_Y 802
 #define B_LEFT_CORNER_X 70
-#define B_LEFT_CORNER_Y 460
+#define B_LEFT_CORNER_Y 440
 #define B_RIGHT_CORNER_X 1295
-#define B_RIGHT_CORNER_Y 460
+#define B_RIGHT_CORNER_Y 440
 #define P1_STAGE_CORNER_X 156
-#define P1_STAGE_CORNER_Y 174
+#define P1_STAGE_CORNER_Y 154
 #define P2_STAGE_CORNER_X 844
-#define P2_STAGE_CORNER_Y 174
+#define P2_STAGE_CORNER_Y 154
 #define P1_NEXT_CORNER_X 587
-#define P1_NEXT_CORNER_Y 125
+#define P1_NEXT_CORNER_Y 105
 #define P2_NEXT_CORNER_X 702
-#define P2_NEXT_CORNER_Y 125
-#define P1_SCORE_CORNER_X 366
-#define P1_SCORE_CORNER_Y 110
-#define P2_SCORE_CORNER_X 1195
-#define P2_SCORE_CORNER_Y 110
-#define INFO_CORNER_X 622
-#define INFO_CORNER_Y 422
+#define P2_NEXT_CORNER_Y 105
+#define P1_SCORE_CORNER_X 160
+#define P1_SCORE_CORNER_Y 860
+#define P2_SCORE_CORNER_X 850
+#define P2_SCORE_CORNER_Y 860
+#define INFO_CORNER_X 585
+#define INFO_CORNER_Y 430
 typedef enum ButtonState
 {
     Continue_Dark, //继续
@@ -73,5 +73,6 @@ public:
     void gameRun();
     void DrawButton();
     void DrawResults();
+    void TextOut1();
     //void TextOut1();
 };

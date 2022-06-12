@@ -26,12 +26,12 @@ void Game::NullClick(int j, int i)
             {
                 if (mGameData[k][l].isPress == false)//判断是否被按下
                 {
-                    mGameData[k][l].isPress = true;//将isPress设置为true
-                    // if (mGameData[k][l].mState != ncMINE)
-                    // {
-                    //     mGameData[k][l].isPress = true;
-                    //     cout << 8 << endl;
-                    // }
+                    //mGameData[k][l].isPress = true;//将isPress设置为true
+                    if (mGameData[k][l].mState != ncMINE)
+                    {
+                        mGameData[k][l].isPress = true;
+                        cout << 8 << endl;
+                    }
 
                     if (mGameData[k][l].mState == ncNULL)//如果是空格
                     {
@@ -125,7 +125,7 @@ void Game::undownOpen()
             if (mGameData[j][i].isPress == false)
             {
                 mGameData[j][i].isPress = true;
-                if (mGameData[j][i].mState = ncMINE)
+                if (mGameData[j][i].mState == ncMINE)
                 {
                     mGameData[j][i].mState = ncFLAG;
                 }
@@ -386,17 +386,23 @@ void Game::Input()
                 if (mouseClickTimer.getElapsedTime().asMilliseconds() < 500 && P2.x - P1.x < gridSize / 4 && P2.y - P1.y < gridSize / 4 
                 && mouseDlbClkReady)
                 {
-                    LButtonDblClk(P2);
+                    mouseAction=LButtonDblClkFunc;
+                    mousePoint_current=P2;
+                    //LButtonDblClk(P2);
                     mouseDlbClkReady = false;
                 }
                 else
                 {
-                    LButtonDown(P2);
+                    mouseAction=LButtonDownFunc;
+                    mousePoint_current=P2;
+                    //LButtonDown(P2);
                     mouseDlbClkReady = true;
                     mouse_RL_ClkReady++;
                     if (mouse_RL_ClkReady == 2)
                     {
-                        RL_ButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
+                        mouseAction=LRButtonDownFunc;
+                        mousePoint_current=(Vector2i)window.mapPixelToCoords(Mouse::getPosition(window));
+                        //RL_ButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
                     }
                 }
             }
@@ -413,11 +419,13 @@ void Game::Input()
 
                 if (mouse_RL_ClkReady == 2)
                 {
-                    RL_ButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
+                    mouseAction=LRButtonDownFunc;
+                    mousePoint_current=(Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)) ;  //RL_ButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
                 }
                 else
                 {
-                    RButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
+                    mouseAction=RButtonDownFunc;
+                    mousePoint_current=(Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)) ;     //RButtonDown((Vector2i)window.mapPixelToCoords(Mouse::getPosition(window)));
                 }
             }
         }
@@ -557,7 +565,7 @@ void Game::RButtonDown(Vector2i mPoint)
             mGameData[j][i].isPress = true;
             mGameData[j][i].mStateBackUp = mGameData[j][i].mState;
             mGameData[j][i].mState = ncFLAG;
-            cout << 4 << endl;
+            cout << 4 << endl; 
             mFlagCalc++;
         }
         else
@@ -803,17 +811,22 @@ void Game::Logic()
     {
     case RButtonDownFunc:
         cout << "this is RButtonDownFunc" << endl;
-        RButtonDown(mousePoint);
+        RButtonDown(mousePoint_current);
         mouseAction = STOP;
         break;
     case LButtonDownFunc:
         cout << "this is LButtonDownFunc" << endl;
-        LButtonDown(mousePoint);
+        LButtonDown(mousePoint_current);
         mouseAction = STOP;
         break;
     case LButtonDblClkFunc:
         cout << "this is LButtonDblClkFunc" << endl;
-        LButtonDblClk(mousePoint);
+        LButtonDblClk(mousePoint_current);
+        mouseAction = STOP;
+        break;
+    case LRButtonDownFunc:
+        cout << "this is LRButtonDownFunc" << endl;
+        RL_ButtonDown(mousePoint_current);
         mouseAction = STOP;
         break;
     }
